@@ -1,0 +1,47 @@
+CREATE TABLE study_levels (
+    id_level INT PRIMARY KEY,
+    course_level TINYINT,
+    level_name VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE users (
+    id_user INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    birth_date DATE NOT NULL,
+    id_level INT,
+    is_teacher BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (id_level) REFERENCES study_levels(id_level)
+);
+
+CREATE TABLE tutors (
+    id_tutor INT AUTO_INCREMENT PRIMARY KEY,
+    tutor_name VARCHAR(100) NOT NULL,
+    tutor_email VARCHAR(100) UNIQUE NOT NULL,
+    phone VARCHAR(15),
+    consent BOOLEAN DEFAULT FALSE,
+    id_student INT UNIQUE,
+    FOREIGN KEY (id_student) REFERENCES users(id_user) ON DELETE CASCADE
+);
+
+CREATE TABLE incidents (
+    id_incident INT AUTO_INCREMENT PRIMARY KEY,
+    id_student INT,
+    title VARCHAR(200) NOT NULL,
+    description TEXT NOT NULL,
+    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status VARCHAR(50) DEFAULT 'Pending',
+    FOREIGN KEY (id_student) REFERENCES users(id_user) ON DELETE CASCADE
+);
+
+CREATE TABLE assignments (
+    id_assignment INT AUTO_INCREMENT PRIMARY KEY,
+    id_incident INT,
+    id_teacher INT,
+    assignment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_incident) REFERENCES incidents(id_incident) ON DELETE CASCADE,
+    FOREIGN KEY (id_teacher) REFERENCES users(id_user) ON DELETE SET NULL
+);
