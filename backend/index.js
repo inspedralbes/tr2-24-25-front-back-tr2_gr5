@@ -1,5 +1,6 @@
 const express = require('express');
 const fs = require('fs');
+const path = require('path'); // Para manejar rutas de forma segura
 const http = require('http');
 const { Server } = require('socket.io');
 
@@ -21,9 +22,9 @@ io.on('connection', (socket) => {
 // Middleware para procesar JSON
 app.use(express.json());
 
-
 // Función para leer los archivos JSON
-const readJsonFile = (filePath) => {
+const readJsonFile = (fileName) => {
+    const filePath = path.join(__dirname, fileName); // Ruta absoluta basada en la ubicación del archivo actual
     return new Promise((resolve, reject) => {
         fs.readFile(filePath, 'utf-8', (err, data) => {
             if (err) {
@@ -38,7 +39,7 @@ const readJsonFile = (filePath) => {
 // Ruta para obtener los mentores
 app.get('/mentors', async (req, res) => {
     try {
-        const mentors = await readJsonFile('./data/mentors.json');
+        const mentors = await readJsonFile('mentors.json');
         res.json(mentors);
     } catch (error) {
         res.status(500).send('Error al leer los mentores');
@@ -48,7 +49,7 @@ app.get('/mentors', async (req, res) => {
 // Ruta para obtener las incidencias
 app.get('/incidencies', async (req, res) => {
     try {
-        const incidencies = await readJsonFile('./data/incidencies.json');
+        const incidencies = await readJsonFile('incidencies.json');
         res.json(incidencies);
     } catch (error) {
         res.status(500).send('Error al leer las incidencias');
@@ -58,7 +59,7 @@ app.get('/incidencies', async (req, res) => {
 // Ruta para obtener los alumnes
 app.get('/alumnes', async (req, res) => {
     try {
-        const alumnes = await readJsonFile('./data/alumnes.json');
+        const alumnes = await readJsonFile('alumnes.json');
         res.json(alumnes);
     } catch (error) {
         res.status(500).send('Error al leer los alumnes');
