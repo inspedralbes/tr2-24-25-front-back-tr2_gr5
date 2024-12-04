@@ -1,0 +1,20 @@
+[
+  {
+    "Nom": "Incidencia 1",
+    "ID": 301,
+    "texto_descriptivo": "El alumno Juan Pérez no ha entregado la tarea de matemáticas.",
+    "Materia": "Matemáticas"
+  },
+  {
+    "Nom": "Incidencia 2",
+    "ID": 302,
+    "texto_descriptivo": "Ana Gómez presenta dificultades para entender los conceptos de física.",
+    "Materia": "Física"
+  },
+  {
+    "Nom": "Incidencia 3",
+    "ID": 303,
+    "texto_descriptivo": "Luis Fernández llegó tarde a la clase de química y no participó en la actividad.",
+    "Materia": "Química"
+  }
+]

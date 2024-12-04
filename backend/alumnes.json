@@ -1,0 +1,23 @@
+[
+    {
+      "ID": 101,
+      "Nom": "Juan Pérez",
+      "Correu": "juan.perez@email.com",
+      "Contraseña": "1234abcd",
+      "Correu_TutorLegal": "maria.perez@email.com"
+    },
+    {
+      "ID": 102,
+      "Nom": "Ana Gómez",
+      "Correu": "ana.gomez@email.com",
+      "Contraseña": "5678efgh",
+      "Correu_TutorLegal": "jorge.gomez@email.com"
+    },
+    {
+      "ID": 103,
+      "Nom": "Luis Fernández",
+      "Correu": "luis.fernandez@email.com",
+      "Contraseña": "abcd1234",
+      "Correu_TutorLegal": "luisa.fernandez@email.com"
+    }
+  ]
