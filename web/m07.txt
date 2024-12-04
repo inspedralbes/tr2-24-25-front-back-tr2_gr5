@@ -1,0 +1,13 @@
+Requisits del mòdul d'Interficies 
+Els requisits del mòdul M7 son els següents:
+
+Heu de fer serir VUE + Vuetify fent un ús intensiu de components.
+
+Hue de fer servir Vue Router per gestionar les diferents rutes que tindrà la vostra aplicació.
+
+Heu de treballar amb Pinia pel treball amb la gestió d'estats de la vostra aplicació.
+
+S'ha de fer un executable amb Electron de la aplicació
+
+
+El primer que se us demana es que feu un prototip de les pantalles fent servir Figma/PenPot o similar
