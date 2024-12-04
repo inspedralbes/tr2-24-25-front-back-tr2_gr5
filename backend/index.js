@@ -36,6 +36,8 @@ const readJsonFile = (fileName) => {
     });
 };
 
+
+
 // Ruta para obtener los mentores
 app.get('/mentors', async (req, res) => {
     try {
@@ -45,6 +47,8 @@ app.get('/mentors', async (req, res) => {
         res.status(500).send('Error al leer los mentores');
     }
 });
+
+
 
 // Ruta para obtener las incidencias
 app.get('/incidencies', async (req, res) => {
