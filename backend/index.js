@@ -32,3 +32,7 @@ const dataConnection = {
       console.error('Error connecting to the database: ', error);
     }
   }
+
+
+app.use(cors());
+app.use(express.json());
