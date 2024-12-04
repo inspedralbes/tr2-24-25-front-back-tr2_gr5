@@ -1,7 +1,7 @@
 <template>
   <v-app-bar id="tabla">
     <v-toolbar-title>
-      <v-btn to="/supportly">Supportly</v-btn>
+    <v-btn to="/paginaprincipal">Supportly</v-btn>
     </v-toolbar-title>
     <v-spacer></v-spacer>
     <v-layout class="overflow-visible" style="height: 56px">
@@ -10,6 +10,16 @@
           <v-icon>mdi-alert-circle-outline</v-icon>
 
           Incidencies
+        </v-btn>
+        <v-btn to="/alumnes">
+          <v-icon>mdi-school</v-icon>
+
+          Alumnes
+        </v-btn>
+        <v-btn to="/mentors">
+          <v-icon>mdi-account-tie</v-icon>
+
+          Mentors
         </v-btn>
       </v-bottom-navigation>
     </v-layout>
@@ -20,10 +30,4 @@
 </script>
 
 <style scoped>
-.options {
-  background-color: rgb(255, 251, 230);
-}
-#tabla {
-  background-color: rgb(255, 234, 167);
-}
 </style>
