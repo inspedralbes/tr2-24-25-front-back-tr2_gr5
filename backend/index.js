@@ -84,8 +84,53 @@ app.post('/peticion', async (req, res) => {
   }
 });
 
-app.put('/peticion/:id', async (req, res) => {
-
+  app.put('/peticion/:id', upload.single('image'), async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const peticiontId = parseInt(cleanedId, 10); // Convertir a entero
+    const { id_usuari, id_categoria, nom_peticio, descripcio} = req.body;
+    let connection;
+  
+    // Validación de campos
+    if (id_usuari == undefined|| id_categoria == undefined || nom_peticio == undefined || descripcio == undefined) {
+      return res.status(400).send('Datos incompletos.');
+    }
+  
+    try {
+      // Conectar a la base de datos
+      connection = await connectDB();
+  
+      // Obtener la ruta de la imagen actual
+      const [currentProduct] = await connection.query('SELECT imagePath FROM products WHERE id = ?', [productId]);
+      if (currentProduct.length === 0) {
+        return res.status(404).send('Producto no encontrado.');
+      }
+  
+      // Determinar la ruta de la imagen
+      const imagePath = req.file ? `assets/${req.file.filename}` : currentProduct[0].imagePath;
+  
+      // Ejecutar consulta de actualización
+      const [result] = await connection.query(
+        `UPDATE products SET categoryId = ?, name = ?, description = ?, size = ?, price = ?, imagePath = ?, color = ?, stock = ?, activated = ? WHERE id = ?`,
+        [categoryId, name, description, size, price, imagePath, color, stock, activated, productId]
+      );
+  
+      if (result.affectedRows > 0) {
+        sendProducts(); // Función de socket
+        let message = {
+          message: `Producto con ID ${productId} actualizado con éxito.`
+        }
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Producto no encontrado.');
+      }
+    } catch (error) {
+      console.error('Error al actualizar el producto:', error);
+      res.status(500).send('Error al actualizar el producto.');
+    } finally {
+      if (connection) connection.end();
+      console.log("Connection closed.");
+    }
 });
 
 app.delete('/peticion/:id', async (req, res) => {
