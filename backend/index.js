@@ -14,6 +14,7 @@ const port = process.env.PORT;
     await createDB();
 })();
 
+
 const dataConnection = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
@@ -33,6 +34,64 @@ const dataConnection = {
     }
   }
 
-
+// -------------------- CREACION SERVER --------------------
 app.use(cors());
 app.use(express.json());
+const server = createServer(app);
+
+//----------------- CRUD PETICION ---------------------------
+app.get('/peticion', async (req, res) => {
+let connection;
+try {
+  connection = await connectDB();
+  const [rows] = await connection.query('SELECT * FROM peticio')
+  console.log("Peticions: ", rows);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching peticions:', error);
+    res.status(500).send('Error fetching peticions.');
+  } finally {
+    connection.end();
+    console.log("Connection closed.");
+  }
+});
+
+app.post('/peticion', async (req, res) => {
+  const { id_usuari, id_categoria, nom_peticio, descripcio } = req.body;
+  if (!id_usuari || !id_categoria|| !nom_peticio|| !descripcio) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  let connection;
+
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('INSERT INTO peticio (id_usuari, id_categoria, nom_peticio, descripcio) VALUES (?, ?, ?, ?)', [id_usuari, id_categoria, nom_peticio, descripcio]);
+  
+    console.log("Peticion: ", rows);
+
+    if (rows.length == 0) {
+      return res.status(404).send('Usuario no encontrado.');
+    }
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching peticions:', error);
+    res.status(500).send('Error fetching peticions.');
+  } finally {
+    connection.end();
+    console.log("Connection closed.");
+  }
+});
+
+app.put('/peticion/:id', async (req, res) => {
+
+});
+
+app.delete('/peticion/:id', async (req, res) => {
+
+});
+
+server.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
