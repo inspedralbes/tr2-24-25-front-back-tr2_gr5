@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2');
-require('dotenv').config();
+require('dotenv').config({ path: './environment/.env' });
 
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,
@@ -11,12 +11,13 @@ const connection = mysql.createConnection({
 });
 
 const dataBaseName = process.env.DB_NAME;
-const sqlFileCrateDB = path.join(__dirname, 'data', 'createDB.sql');
+const sqlFileCrateDB = path.join(__dirname, '.', 'data', 'createDB.sql');
 const fileCreateSQL = fs.readFileSync(sqlFileCrateDB, 'utf8');
-const sqlFileInsertDB = path.join(__dirname, 'data', 'insertDataDB.sql');
+const sqlFileInsertDB = path.join(__dirname, '.', 'data', 'insertDB.sql');
 const fileInsertSQL = fs.readFileSync(sqlFileInsertDB, 'utf8');
 
 async function createDB() {
+
     return new Promise((resolve, reject) => {
         connection.connect((err) => {
             if (err) {
