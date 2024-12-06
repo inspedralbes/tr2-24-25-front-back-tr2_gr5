@@ -1,11 +1,11 @@
 const mysql = require('mysql2/promise');
 const fs = require('fs');
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
@@ -84,10 +84,10 @@ app.post('/peticion', async (req, res) => {
   }
 });
 
-  app.put('/peticion/:id', upload.single('image'), async (req, res) => {
+  app.put('/peticion/:id', async (req, res) => {
     const { id } = req.params;
     const cleanedId = id.replace(/[^0-9]/g, '');
-    const peticiontId = parseInt(cleanedId, 10); // Convertir a entero
+    const petitionId = parseInt(cleanedId, 10); // Convertir a entero
     const { id_usuari, id_categoria, nom_peticio, descripcio} = req.body;
     let connection;
   
@@ -99,34 +99,25 @@ app.post('/peticion', async (req, res) => {
     try {
       // Conectar a la base de datos
       connection = await connectDB();
-  
-      // Obtener la ruta de la imagen actual
-      const [currentProduct] = await connection.query('SELECT imagePath FROM products WHERE id = ?', [productId]);
-      if (currentProduct.length === 0) {
-        return res.status(404).send('Producto no encontrado.');
-      }
-  
-      // Determinar la ruta de la imagen
-      const imagePath = req.file ? `assets/${req.file.filename}` : currentProduct[0].imagePath;
-  
+
       // Ejecutar consulta de actualización
       const [result] = await connection.query(
-        `UPDATE products SET categoryId = ?, name = ?, description = ?, size = ?, price = ?, imagePath = ?, color = ?, stock = ?, activated = ? WHERE id = ?`,
-        [categoryId, name, description, size, price, imagePath, color, stock, activated, productId]
+        'UPDATE peticio SET id_usuari = ?, id_categoria = ?, nom_peticio = ?, descripcio = ? WHERE id_peticio = ?',
+        [id_usuari, id_categoria, nom_peticio, descripcio, petitionId]
       );
   
       if (result.affectedRows > 0) {
-        sendProducts(); // Función de socket
+        // sendProducts(); // Función de socket
         let message = {
-          message: `Producto con ID ${productId} actualizado con éxito.`
+          message: `Peticion con ID ${petitionId} actualizado con éxito.`
         }
         res.status(200).send(JSON.stringify(message));
       } else {
-        res.status(404).send('Producto no encontrado.');
+        res.status(404).send('Peticion no encontrada.');
       }
     } catch (error) {
-      console.error('Error al actualizar el producto:', error);
-      res.status(500).send('Error al actualizar el producto.');
+      console.error('Error al actualizar la Peticion:', error);
+      res.status(500).send('Error al actualizar la Peticion.');
     } finally {
       if (connection) connection.end();
       console.log("Connection closed.");
@@ -134,6 +125,27 @@ app.post('/peticion', async (req, res) => {
 });
 
 app.delete('/peticion/:id', async (req, res) => {
+const {id} = req.params;
+const cleanedID = id.replace(/[^0-9]/g, '');
+const petitionId = parseInt(cleanedID, 10);
+let connection;
+
+try {
+  connection = await connectDB();
+  const [rows] = await connection.query('DELETE FROM peticio WHERE id_peticio = ?', [petitionId])
+  
+  if (rows.affectedRows > 0) {
+    // sendProducts(); // Función de socket
+      const message = { message: `Peticion con ID ${petitionId} eliminado con éxito.` };
+      res.status(200).send(JSON.stringify(message));
+  } else {
+    res.status(404).send('Peticion no encontrado.');
+  }
+} catch (error) {
+  res.status(500).send('Error al eliminar la peticion.');
+} finally {
+  connection.end();
+}
 
 });
 
