@@ -263,7 +263,121 @@ app.delete('/resposta/:id', async (req, res) => {
   }
 });
 
+//--------------------- CRUD categoria ---------------------------
+app.get('/categoria', async (req, res) => {
+  let connection;
+  
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('SELECT * FROM categoria');
+    console.log('Categorias: ', rows);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).send('Error fetching categories.');
+  } finally {
+    connection.end();
+    console.log("Connection closed.");
+  }
+  
+  });
 
+  app.post('/categoria', async (req, res) => {
+    const { nom } = req.body;
+    if (nom == undefined) {
+      return res.status(400).send('Datos incompletos.');
+    }
+  
+    let connection;
+  
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('INSERT INTO categoria (nom) VALUES (?)', [nom]);
+    
+      console.log("Categoria: ", rows);
+  
+      if (rows.length == 0) {
+        return res.status(404).send('Categoria no encontrada.');
+      }
+      let message = {
+        message: `Categoria insertada con exito`
+      }
+  
+      res.status(200).send(JSON.stringify(message));
+      res.status(201).json(rows[0]);
+    } catch (error) {
+      console.error('Error fetching categoria:', error);
+      res.status(500).send('Error fetching categoria.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+
+  app.put('/categoria/:id', async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const categoriaId = parseInt(cleanedId, 10); // Convertir a entero
+    const { nom } = req.body;
+    let connection;
+  
+    // Validación de campos
+    if (nom == undefined) {
+      return res.status(400).send('Datos incompletos.');
+    }
+  
+    try {
+      // Conectar a la base de datos
+      connection = await connectDB();
+  
+      // Ejecutar consulta de actualización
+      const [result] = await connection.query(
+        'UPDATE categoria SET nom = ? WHERE id_categoria = ?',
+        [nom , categoriaId]
+      );
+  
+      if (result.affectedRows > 0) {
+        // sendProducts(); // Función de socket
+        let message = {
+          message: `Categoria con ID ${categoriaId} actualizado con éxito.`
+        }
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Categoria no encontrada.');
+      }
+    } catch (error) {
+      console.error('Error al actualizar la resposta:', error);
+      res.status(500).send('Error al actualizar la resposta.');
+    } finally {
+      if (connection) connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
+  app.delete('/categoria/:id', async (req, res) => {
+    const {id} = req.params;
+    const cleanedID = id.replace(/[^0-9]/g, '');
+    const categoriaId = parseInt(cleanedID, 10);
+    let connection;
+    
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('DELETE FROM categoria WHERE id_categoria = ?', [categoriaId])
+      
+      if (rows.affectedRows > 0) {
+        // sendProducts(); // Función de socket
+          const message = { message: `Categoria con ID ${categoriaId} eliminado con éxito.` };
+          res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Categoria no encontrado.');
+      }
+    } catch (error) {
+      res.status(500).send('Error al eliminar la categoria.');
+    } finally {
+      connection.end();
+    }
+  });
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
