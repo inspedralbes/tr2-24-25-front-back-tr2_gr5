@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS resposta (
   id_resposta INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   id_peticio INT(11) NOT NULL,
   id_usuari INT(11) NOT NULL,
-  id_resposta_ref INT(11) DEFAULT NULL,
+  id_resposta_ref INT(11) DEFAULT 0,
   contingut TEXT NOT NULL,
   data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_peticio) REFERENCES peticio (id_peticio) ON DELETE CASCADE,

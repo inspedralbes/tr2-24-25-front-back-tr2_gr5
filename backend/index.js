@@ -39,7 +39,7 @@ app.use(cors());
 app.use(express.json());
 const server = createServer(app);
 
-//----------------- CRUD PETICION ---------------------------
+//----------------- CRUD PETICION ---------------------------------------
 app.get('/peticion', async (req, res) => {
 let connection;
 try {
@@ -148,6 +148,122 @@ try {
 }
 
 });
+//------------------------------------------------------------
+
+
+// ---------------------------- CRUD Resposta ----------------------------------------------------
+
+app.get('/resposta', async (req, res) => {
+let connection;
+
+try {
+  connection = await connectDB();
+  const [rows] = await connection.query('SELECT * FROM resposta');
+  console.log('Respostes: ', rows);
+  res.json(rows);
+} catch (error) {
+  console.error('Error fetching respostes:', error);
+  res.status(500).send('Error fetching respostes.');
+} finally {
+  connection.end();
+  console.log("Connection closed.");
+}
+
+});
+
+app.post('/resposta', async (req, res) => {
+  const { id_peticio, id_usuari, id_resposta_ref, contingut, data } = req.body;
+  if (!id_peticio || !id_usuari|| id_resposta_ref == undefined ||!contingut || !data) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  let connection;
+
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('INSERT INTO resposta (id_peticio, id_usuari, id_resposta_ref, contingut, data) VALUES (?, ?, ?, ?, ?)', [id_peticio, id_usuari, id_resposta_ref, contingut, data]);
+  
+    console.log("Resposta: ", rows);
+
+    if (rows.length == 0) {
+      return res.status(404).send('Resposta no encontrada.');
+    }
+
+    res.status(201).json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching resposta:', error);
+    res.status(500).send('Error fetching resposta.');
+  } finally {
+    connection.end();
+    console.log("Connection closed.");
+  }
+});
+
+app.put('/resposta/:id', async (req, res) => {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, '');
+  const respostaId = parseInt(cleanedId, 10); // Convertir a entero
+  const { id_peticio, id_usuari, id_resposta_ref, contingut} = req.body;
+  let connection;
+
+  // Validación de campos
+  if (contingut == undefined) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  try {
+    // Conectar a la base de datos
+    connection = await connectDB();
+
+    // Ejecutar consulta de actualización
+    const [result] = await connection.query(
+      'UPDATE resposta SET contingut = ? WHERE id_resposta = ?',
+      [contingut , respostaId]
+    );
+
+    if (result.affectedRows > 0) {
+      // sendProducts(); // Función de socket
+      let message = {
+        message: `Resposta con ID ${respostaId} actualizado con éxito.`
+      }
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Resposta no encontrada.');
+    }
+  } catch (error) {
+    console.error('Error al actualizar la resposta:', error);
+    res.status(500).send('Error al actualizar la resposta.');
+  } finally {
+    if (connection) connection.end();
+    console.log("Connection closed.");
+  }
+});
+
+app.delete('/resposta/:id', async (req, res) => {
+  const {id} = req.params;
+  const cleanedID = id.replace(/[^0-9]/g, '');
+  const respostaId = parseInt(cleanedID, 10);
+  let connection;
+  
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('DELETE FROM resposta WHERE id_resposta = ?', [respostaId])
+    
+    if (rows.affectedRows > 0) {
+      // sendProducts(); // Función de socket
+        const message = { message: `Resposta con ID ${respostaId} eliminado con éxito.` };
+        res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Resposta no encontrado.');
+    }
+  } catch (error) {
+    res.status(500).send('Error al eliminar la resposta.');
+  } finally {
+    connection.end();
+  }
+});
+
+
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);

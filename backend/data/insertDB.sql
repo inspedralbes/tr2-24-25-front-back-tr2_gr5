@@ -25,6 +25,6 @@ INSERT INTO peticio (id_usuari, id_categoria, nom_peticio, descripcio) VALUES
 
 -- Insertar datos en la tabla resposta
 INSERT INTO resposta (id_peticio, id_usuari, id_resposta_ref, contingut) VALUES 
-(1, 2, NULL, 'Puedo ayudarte con álgebra. ¿Cuándo te gustaría empezar?'),
-(2, 3, NULL, 'Tengo experiencia en proyectos de energía solar. Escríbeme para coordinar.'),
-(3, 1, NULL, 'Estoy interesado en aprender desarrollo web también. ¿Podemos colaborar?');
+(1, 2, 0, 'Puedo ayudarte con álgebra. ¿Cuándo te gustaría empezar?'),
+(2, 3, 0, 'Tengo experiencia en proyectos de energía solar. Escríbeme para coordinar.'),
+(3, 1, 0, 'Estoy interesado en aprender desarrollo web también. ¿Podemos colaborar?');
