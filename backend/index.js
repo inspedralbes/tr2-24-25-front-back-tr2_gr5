@@ -476,6 +476,94 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+
+  //------------------------------------------ CRUD coneixements --------------------------------------
+  app.get('/coneixements', async (req, res) => {
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('SELECT * FROM coneixements');
+      console.log('Coneixements: ', rows);
+      res.json(rows);
+    } catch (error) {
+      console.error('Error fetching coneixements:', error);
+      res.status(500).send('Error fetching coneixements.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.post('/coneixements', async (req, res) => {
+    const { id_usuari, id_categoria } = req.body;
+    if (!id_usuari || !id_categoria) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('INSERT INTO coneixements (id_usuari, id_categoria) VALUES (?, ?)', [id_usuari, id_categoria]);
+      let message = { message: `Coneixement insertado con éxito.` };
+      res.status(201).send(JSON.stringify(message));
+    } catch (error) {
+      console.error('Error inserting coneixements:', error);
+      res.status(500).send('Error inserting coneixements.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.put('/coneixements/:id', async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const coneixementsId = parseInt(cleanedId, 10);
+    const { id_usuari, id_categoria } = req.body;
+    if (!id_usuari || !id_categoria) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      const [result] = await connection.query('UPDATE coneixements SET id_usuari = ?, id_categoria = ? WHERE id_coneixement = ?', [id_usuari, id_categoria, coneixementsId]);
+      if (result.affectedRows > 0) {
+        let message = { message: `Coneixement con ID ${coneixementsId} actualizado con éxito.` };
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Coneixement no encontrado.');
+      }
+    } catch (error) {
+      console.error('Error updating coneixements:', error);
+      res.status(500).send('Error updating coneixements.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.delete('/coneixements/:id', async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const coneixementsId = parseInt(cleanedId, 10);
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('DELETE FROM coneixements WHERE id_coneixement = ?', [coneixementsId]);
+      if (rows.affectedRows > 0) {
+        let message = { message: `Coneixement con ID ${coneixementsId} eliminado con éxito.` };
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Coneixement no encontrado.');
+      }
+    } catch (error) {
+      console.error('Error deleting coneixements:', error);
+      res.status(500).send('Error deleting coneixements.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
