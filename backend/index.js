@@ -379,6 +379,103 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+  //---------------------------------------- CRUD usuaris -------------------------------------------
+
+  app.get('/usuaris', async (req, res) => {
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('SELECT * FROM usuaris');
+      console.log('Usuaris: ', rows);
+      res.json(rows);
+    } catch (error) {
+      console.error('Error fetching usuaris:', error);
+      res.status(500).send('Error fetching usuaris.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.post('/usuaris', async (req, res) => {
+    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]);
+      let message = { message: `Usuari insertado con éxito.` };
+      res.status(201).send(JSON.stringify(message));
+    } catch (error) {
+      console.error('Error inserting usuaris:', error);
+      res.status(500).send('Error inserting usuaris.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.put('/usuaris/:id', async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const usuariId = parseInt(cleanedId, 10);
+    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    if (
+  nom == undefined || 
+  correu_alumne == undefined || 
+  correu_tutor == undefined || 
+  correu_profe == undefined || 
+  contrasenya == undefined ||
+  telefon == undefined || 
+  tipus == undefined ||
+  imatge_usuari_ruta == undefined
+) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      const [result] = await connection.query('UPDATE usuaris SET nom = ?, correu_alumne = ?, correu_tutor = ?, correu_profe = ?, contrasenya = ?, telefon = ?, tipus = ?, imatge_usuari_ruta = ? WHERE id_usuari = ?', [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta, usuariId]);
+      if (result.affectedRows > 0) {
+        let message = { message: `Usuari con ID ${usuariId} actualizado con éxito.` };
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Usuari no encontrado.');
+      }
+    } catch (error) {
+      console.error('Error updating usuaris:', error);
+      res.status(500).send('Error updating usuaris.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
+  app.delete('/usuaris/:id', async (req, res) => {
+    const { id } = req.params;
+    const cleanedId = id.replace(/[^0-9]/g, '');
+    const usuariId = parseInt(cleanedId, 10);
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('DELETE FROM usuaris WHERE id_usuari = ?', [usuariId]);
+      if (rows.affectedRows > 0) {
+        let message = { message: `Usuari con ID ${usuariId} eliminado con éxito.` };
+        res.status(200).send(JSON.stringify(message));
+      } else {
+        res.status(404).send('Usuari no encontrado.');
+      }
+    } catch (error) {
+      console.error('Error deleting usuaris:', error);
+      res.status(500).send('Error deleting usuaris.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
 });
