@@ -31,3 +31,24 @@ export async function getPeticio() {
       throw error;
     }
   }
+
+  export async function modificarPeticio(peticio) {
+    try {
+        const response = await fetch(`${import.meta.env.VITE_URL_BACK}/peticion/${peticio.id_peticio}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(peticio),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al modificar la petició');
+        }
+
+        const updatedPeticio = await response.json();
+        return updatedPeticio;
+    } catch (error) {
+        console.error("Error en modificarPeticio: ", error);
+    }
+}
