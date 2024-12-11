@@ -3,19 +3,26 @@
     <v-card
       v-for="peticio in data"
       :key="peticio.id_peticio"
-      class="my-5 ancho d-flex justify-start align-center"
+      class="my-5 ancho d-flex justify-space-between align-center"
       :title="peticio.nom_peticio"
       :subtitle="peticio.descripcio"
-    >
-      <div class="ml-auto d-flex align-center">
+      style="padding-right: 30px; padding-left: 16px">
+
+    <div class="d-flex">
+      <div class="pr-3">
         <v-btn @click="toggleEditPeticioDialog(peticio)" icon color="primary">
           <v-icon>mdi-pencil</v-icon>
         </v-btn>
+      </div>
+      <div>
         <v-btn @click="confirmDelete(peticio.id_peticio)" icon color="red">
           <v-icon>mdi-close</v-icon>
         </v-btn>
       </div>
+    </div>
+    
     </v-card>
+    
     
     <v-dialog v-model="dialog" max-width="500">
       <v-card>
@@ -125,6 +132,6 @@ onMounted(() => {
 <style scoped>
 .ancho {
   height: 105px;
-  width: 1750px;
+  width: 1200px;
 }
 </style>

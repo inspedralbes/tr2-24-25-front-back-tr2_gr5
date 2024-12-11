@@ -1,8 +1,8 @@
 <template>
- <MentorsPage />
+ <UsuarisPage/>
 </template>
 <script setup>
- import MentorsPage from '@/components/MentorsPage'
+import UsuarisPage from '@/components/UsuarisPage.vue';
 </script>
 <style scoped>
 

@@ -3,7 +3,31 @@
     <v-toolbar-title>
     <v-btn to="/paginaprincipal">Supportly</v-btn>
     </v-toolbar-title>
-    <v-spacer></v-spacer>
+    <v-spacer>
+      <v-combobox
+    v-model="chips"
+    :items="items"
+    label="Cercador"
+    variant="solo"
+    chips
+    clearable
+    multiple>
+
+    <template v-slot:selection="{ attrs, item, select, selected }">
+      <v-chip
+        v-bind="attrs"
+        :model-value="selected"
+        closable
+        @click="select"
+        @click:close="remove(item)"
+      >
+        <strong>{{ item }}</strong>&nbsp;
+        <span>(interest)</span>
+      </v-chip>
+    </template>
+  </v-combobox>
+    </v-spacer>
+
     <v-layout class="overflow-visible" style="height: 56px">
       <v-bottom-navigation v-model="value" class="options" grow rounded="lg">
         <v-btn to="/incidencies">
@@ -11,15 +35,10 @@
 
           Incidencies
         </v-btn>
-        <v-btn to="/alumnes">
+        <v-btn to="/usuaris">
           <v-icon>mdi-school</v-icon>
 
           Alumnes
-        </v-btn>
-        <v-btn to="/mentors">
-          <v-icon>mdi-account-tie</v-icon>
-
-          Mentors
         </v-btn>
       </v-bottom-navigation>
     </v-layout>

@@ -1,6 +1,10 @@
+const API_URL = import.meta.env.VITE_URL_BACK;
+
+
+//------------------- PETICIO ------------------
 export async function getPeticio() {
-    console.log('Fetching data from:', `${import.meta.env.VITE_URL_BACK}peticion`);
-    const response = await fetch(`${import.meta.env.VITE_URL_BACK}peticion`);
+    console.log('Fetching data from:', `${API_URL}peticion`);
+    const response = await fetch(`${API_URL}peticion`);
     if (!response.ok) {
       throw new Error('Error al obtenir dades');
     }
@@ -11,7 +15,7 @@ export async function getPeticio() {
   
   export async function deletePeticion(id) {
     console.log("Communication deleting:", id);
-    const url = `${import.meta.env.VITE_URL_BACK}/peticion/${id}`;
+    const url = `${API_URL}/peticion/${id}`;
     console.log("URL:", url);
   
     try {
@@ -34,7 +38,7 @@ export async function getPeticio() {
 
   export async function modificarPeticio(peticio) {
     try {
-        const response = await fetch(`${import.meta.env.VITE_URL_BACK}/peticion/${peticio.id_peticio}`, {
+        const response = await fetch(`${API_URL}/peticion/${peticio.id_peticio}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -51,4 +55,17 @@ export async function getPeticio() {
     } catch (error) {
         console.error("Error en modificarPeticio: ", error);
     }
+}
+
+//------------------------ USUARIS ----------------------------------------------------------------
+
+export async function getUsuaris() {
+  console.log('Fetching data from:', `${API_URL}usuaris`);
+    const response = await fetch(`${API_URL}usuaris`);
+    if (!response.ok) {
+      throw new Error('Error al obtenir dades');
+    }
+    const data = await response.json();
+    console.log('Data received:', data);
+    return data;
 }
