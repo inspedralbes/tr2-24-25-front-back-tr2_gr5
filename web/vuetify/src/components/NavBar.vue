@@ -4,28 +4,7 @@
     <v-btn to="/paginaprincipal">Supportly</v-btn>
     </v-toolbar-title>
     <v-spacer>
-      <v-combobox
-    v-model="chips"
-    :items="items"
-    label="Cercador"
-    variant="solo"
-    chips
-    clearable
-    multiple>
-
-    <template v-slot:selection="{ attrs, item, select, selected }">
-      <v-chip
-        v-bind="attrs"
-        :model-value="selected"
-        closable
-        @click="select"
-        @click:close="remove(item)"
-      >
-        <strong>{{ item }}</strong>&nbsp;
-        <span>(interest)</span>
-      </v-chip>
-    </template>
-  </v-combobox>
+      
     </v-spacer>
 
     <v-layout class="overflow-visible" style="height: 56px">
@@ -45,7 +24,25 @@
   </v-app-bar>
 </template>
 
-<script>
+
+<script setup>
+import { ref } from 'vue'
+
+const chips = ref([
+  'Programming',
+  'Playing video games',
+  'Watching movies',
+  'Sleeping',
+])
+
+const items = ref(['Streaming', 'Eating'])
+
+const remove = (item) => {
+  const index = chips.value.indexOf(item)
+  if (index !== -1) {
+    chips.value.splice(index, 1)
+  }
+}
 </script>
 
 <style scoped>
