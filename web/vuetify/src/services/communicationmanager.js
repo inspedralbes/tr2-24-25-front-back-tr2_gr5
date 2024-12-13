@@ -69,3 +69,15 @@ export async function getUsuaris() {
     console.log('Data received:', data);
     return data;
 }
+
+//------------------------ CATEGORIA -------------------------
+export async function getCategoria() {
+  console.log('Fetching data from:', `${API_URL}categoria`);
+  const response = await fetch(`${API_URL}categoria`);
+  if (!response.ok) {
+    throw new Error('Error al obtenir dades');
+  }
+  const data = await response.json();
+  console.log('Data received:', data);
+  return data;
+}

@@ -1,7 +1,11 @@
 <template>
   <v-container>
+    <SearchBar
+      label="Buscar por categoria de la incidencia"
+      @update:search="updateSearchQuery"
+    />
     <v-card
-      v-for="peticio in data"
+      v-for="peticio in filteredData"
       :key="peticio.id_peticio"
       class="my-5 ancho d-flex justify-space-between align-center"
       :title="peticio.nom_peticio"
@@ -72,20 +76,35 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { getPeticio, deletePeticion, modificarPeticio } from '@/services/communicationmanager';
+import { ref, computed, onMounted } from 'vue';
+import { getPeticio, getCategoria, deletePeticion, modificarPeticio } from '@/services/communicationmanager';
 
-const data = ref([]); 
+
 const dialog = ref(false);
 const editDialog = ref(false);
 const selectedPeticioId = ref(null);
 const editedPeticio = ref({});
+const peticions = ref([]); // Lista de peticiones
+const categorias = ref([]); // Lista de categorías
+const searchQuery = ref(''); // Valor de búsqueda
+
+
+// Función para cargar las categorías
+const loadCategoria = async () => {
+  try {
+    categorias.value = await getCategoria();
+    console.log('Categorías cargadas:', categorias.value);
+  } catch (error) {
+    console.error('Error al cargar categorías:', error);
+  }
+};
 
 const loadPeticions = async () => {
   try {
-    data.value = await getPeticio();
+    peticions.value = await getPeticio();
+    console.log('Peticiones cargadas:', peticions.value);
   } catch (error) {
-    console.error("Error al cargar peticions:", error);
+    console.error('Error al cargar peticiones:', error);
   }
 };
 
@@ -97,7 +116,7 @@ const confirmDelete = (id) => {
 const deletePeticioHandler = async () => {
   try {
     await deletePeticion(selectedPeticioId.value); 
-    data.value = data.value.filter(peticio => peticio.id_peticio !== selectedPeticioId.value);
+    peticions.value = peticions.value.filter(peticio => peticio.id_peticio !== selectedPeticioId.value);
     dialog.value = false;
   } catch (error) {
     console.error("Error al eliminar la petición:", error);
@@ -113,7 +132,7 @@ const toggleEditPeticioDialog = (peticio) => {
 const saveEditPeticio = async () => {
   try {
     const updatedPeticio = await modificarPeticio(editedPeticio.value);
-    const index = data.value.findIndex(peticio => peticio.id_peticio === updatedPeticio.id_peticio);
+    const index = peticions.value.findIndex(peticio => peticio.id_peticio === updatedPeticio.id_peticio);
     if (index !== -1) {
       data.value[index] = updatedPeticio;
     }
@@ -124,8 +143,27 @@ const saveEditPeticio = async () => {
   }
 };
 
+const filteredData = computed(() => {
+  // Encuentra los IDs de categorías que coincidan con la búsqueda
+  const filteredCategoryIds = categorias.value
+    .filter((categoria) =>
+      categoria.nom.toLowerCase().includes(searchQuery.value.toLowerCase())
+    )
+    .map((categoria) => categoria.id_categoria);
+
+  // Filtra las peticiones que tienen IDs de categoría coincidentes
+  return peticions.value.filter((peticio) =>
+    filteredCategoryIds.includes(peticio.id_categoria)
+  );
+});
+
+const updateSearchQuery = (query) => {
+  searchQuery.value = query;
+};
+
 onMounted(() => {
   loadPeticions();
+  loadCategoria();
 });
 </script>
 
