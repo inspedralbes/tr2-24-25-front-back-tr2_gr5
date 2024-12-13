@@ -1,26 +1,26 @@
 <template>
   <v-container>
-    <!-- Barra de búsqueda -->
-    <SearchBar
-      label="Buscar por tipo de usuario"
-      @update:search="updateSearchQuery"
-    />
+    <!-- Pestañas -->
+    <v-tabs v-model="activeTab">
+      <v-tab v-for="tab in tabs" :key="tab.value"  :value="tab.value">
+        {{ tab.label }}
+      </v-tab>
+    </v-tabs>
 
-    <v-card
-      v-for="usuari in filteredData"
-      :key="usuari.id_usuari"
-      class="my-5 ancho d-flex justify-space-between align-center"
-      :title="usuari.nom"
-      :subtitle="usuari.tipus"
-      :class="getCardClass(usuari.tipus)"
-      style="padding-right: 30px; padding-left: 16px"
-    >
-      <div>
-        <v-btn @click="confirmDelete(usuari.id_usuari)" icon color="red">
-          <v-icon>mdi-close</v-icon>
-        </v-btn>
+    <!-- Contenido de las pestañas -->
+    <v-container>
+      <div v-for="usuari in filteredData" :key="usuari.id_usuari" class="my-5 ancho d-flex justify-space-between align-center">
+        <div class="user-card" :class="getCardClass(usuari.tipus)">
+          <div class="user-info">
+            <h3>{{ usuari.nom }}</h3>
+            <p>{{ usuari.tipus }}</p>
+          </div>
+          <v-btn @click="confirmDelete(usuari.id_usuari)" icon color="red">
+            <v-icon>mdi-close</v-icon>
+          </v-btn>
+        </div>
       </div>
-    </v-card>
+    </v-container>
   </v-container>
 </template>
 
@@ -29,10 +29,14 @@ import { ref, computed, onMounted } from 'vue';
 import { getUsuaris } from '@/services/communicationmanager';
 
 const data = ref([]);
-const searchQuery = ref('');
-const deleteDialog = ref(false);
-const selectedUsuariId = ref(null);
+const activeTab = ref('alum');
+const tabs = [
+  { label: 'Alumno', value: "alum"},
+  { label: 'Profesor', value: "prof" },
+  { label: 'Mentor', value: "ment" }
+];
 
+// Carga de datos
 const loadUsuaris = async () => {
   try {
     data.value = await getUsuaris();
@@ -41,22 +45,17 @@ const loadUsuaris = async () => {
   }
 };
 
-// Filtrar usuarios según el tipo
+// Computed para filtrar usuarios según el tipo seleccionado
 const filteredData = computed(() =>
-  data.value.filter((usuari) =>
-    usuari.tipus.toLowerCase().includes(searchQuery.value.toLowerCase())
-  )
+  data.value.filter((usuari) => usuari.tipus === activeTab.value)
 );
 
-const updateSearchQuery = (query) => {
-  searchQuery.value = query;
-};
-
+// Acción de eliminar
 const confirmDelete = (id) => {
-  selectedUsuariId.value = id;
-  deleteDialog.value = true;
+  console.log(`Eliminar usuario con ID: ${id}`);
 };
 
+// Clase de tarjeta según el tipo
 const getCardClass = (tipus) => {
   switch (tipus) {
     case 'alum':
@@ -70,18 +69,29 @@ const getCardClass = (tipus) => {
   }
 };
 
-
+// Cargar usuarios al montar el componente
 onMounted(() => {
   loadUsuaris();
 });
 </script>
+
 <style scoped>
+.user-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}
+
 .bg-green {
   background-color: #e8f5e9; /* Verde claro */
 }
 
 .bg-yellow {
-  background-color: #c9dd11; /* Rojo claro */
+  background-color: #c9dd11; /* Amarillo claro */
 }
 
 .bg-blue {
