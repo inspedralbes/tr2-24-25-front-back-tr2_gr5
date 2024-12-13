@@ -12,6 +12,21 @@
       :subtitle="peticio.descripcio"
       style="padding-right: 30px; padding-left: 16px">
 
+      <v-row class="mt-2">
+        <v-col cols="12">
+
+          <v-chip
+            class="ma-3"
+            :color="getCategoriaColor(peticio.id_categoria)"
+            dark
+          >
+            {{ getCategoriaNombre(peticio.id_categoria) }}
+          </v-chip>
+         
+        </v-col>
+      </v-row>
+
+
     <div class="d-flex">
       <div class="pr-3">
         <v-btn @click="toggleEditPeticioDialog(peticio)" icon color="primary">
@@ -159,6 +174,24 @@ const filteredData = computed(() => {
 
 const updateSearchQuery = (query) => {
   searchQuery.value = query;
+};
+
+const getCategoriaNombre = (idCategoria) => {
+  const categoria = categorias.value.find((cat) => cat.id_categoria === idCategoria);
+  return categoria ? categoria.nom : 'Sin categoría';
+};
+
+// Obtener color basado en la categoría
+const getCategoriaColor = (idCategoria) => {
+  const categoria = categorias.value.find((cat) => cat.id_categoria === idCategoria);
+  if (!categoria) return 'grey';
+  // Definir colores según categorías
+  const colores = {
+    '1': 'green',
+    '2': 'blue',
+    '3': 'red',
+  };
+  return colores[idCategoria] || 'grey';
 };
 
 onMounted(() => {

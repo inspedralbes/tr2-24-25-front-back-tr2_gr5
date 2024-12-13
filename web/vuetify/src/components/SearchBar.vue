@@ -3,7 +3,8 @@
       v-model="searchQuery"
       :label="label"
       clearable
-      class="mb-4"
+      class="mb-4 "
+      rounded
     ></v-text-field>
   </template>
   
