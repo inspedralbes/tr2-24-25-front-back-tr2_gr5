@@ -5,6 +5,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
+const nodemiler = require('nodemiler')
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
@@ -396,17 +397,76 @@ app.get('/categoria', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
   
-  app.post('/usuaris', async (req, res) => {
+ // Configuración de Nodemailer (modifica según tu servidor de correo)
+const transporter = nodemailer.createTransport({
+    service: 'gmail', 
+    auth: {
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS  
+    }
+  });
+  
+  // Registre usuaris ALUMNES amb enviament de correu al seu tutor legal
+  app.post('/alumnes', async (req, res) => {
     const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+  
+    // Validación de datos
     if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
+      return res.status(400).send('Datos incompletos.');
+    }
+  
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query(
+        'INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]
+      );
+  
+      // Enviar correo al tutor
+      const mailOptions = {
+        from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
+        to: correu_tutor,
+        cc: 'a24bermirpre@inspedralbes.cat', cc: 'a21xavmarvel@inspedralbes.cat', cc: 'a22arnmaljoa@inspedralbes.cat', cc: 'a23edstorcev@inspedralbes.cat',
+        subject: 'Registro de Alumno Menor de Edad en Supportly',
+        html: `
+          <h1>Bienvenido a Supportly </h1>
+          <p>Tu hijo/a <b>${nom}</b> ha sido registrado/a en nuestra plataforma Supportly. Por favor, confirma el registro haciendo clic en el siguiente enlace:</p>
+          <a href="http://miapp.com/confirmar-registro?alumno=${correu_alumne}">Confirmar registro</a>  //HACER UNA PANTALLA ADICIONAL EN EL VUE QUE SEA PARA ESTO
+          <p>Gracias,</p>
+          <p>Equipo de Supportly </p>
+        `
+      };
+  
+      // Intentar enviar el correo
+      await transporter.sendMail(mailOptions);
+  
+      // Respuesta exitosa
+      let message = { message: `Usuari insertado con éxito. Correo enviado al tutor legal.` };
+      res.status(201).send(JSON.stringify(message));
+  
+    } catch (error) {
+      console.error('Error al insertar usuario o enviar correo:', error);
+      res.status(500).send('Error al insertar usuario o enviar correo.');
+    } finally {
+      if (connection) connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
+  //Registre usuaris MENTOR
+  app.post('/mentors', async (req, res) => {
+    const { nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    if (!nom || !correu_alumne || !correu_profe || !contrasenya || !tipus) {
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
     try {
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]);
-      let message = { message: `Usuari insertado con éxito.` };
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]);
+      let message = { message: `Mentor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
       console.error('Error inserting usuaris:', error);
@@ -416,6 +476,30 @@ app.get('/categoria', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
+
+
+//REGISTRE PROFES D'AULA PER EL VUE
+  app.post('/profes', async (req, res) => {
+    const { nom, correu_profe, contrasenya } = req.body;
+    if (!nom  || !correu_profe || !contrasenya) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_profe, contrasenya) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_profe, contrasenya]);
+      let message = { message: `Professor insertado con éxito.` };
+      res.status(201).send(JSON.stringify(message));
+    } catch (error) {
+      console.error('Error inserting Profe:', error);
+      res.status(500).send('Error inserting Profe.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
   
   app.put('/usuaris/:id', async (req, res) => {
     const { id } = req.params;
