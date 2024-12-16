@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS peticio (
   id_categoria INT(11) NOT NULL,
   nom_peticio VARCHAR(100) NOT NULL,
   descripcio TEXT NOT NULL,
+  activado boolean NOT NULL default false,
   data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_usuari) REFERENCES usuaris (id_usuari) ON DELETE CASCADE,
   FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria) ON DELETE CASCADE
