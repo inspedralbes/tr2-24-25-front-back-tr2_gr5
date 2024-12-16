@@ -6,10 +6,32 @@ INSERT INTO categoria (nom) VALUES
 ('Tecnología');
 
 -- Insertar datos en la tabla usuaris
+-- Inserciones para 'alum'
+-- Inserciones para 'alum'
+-- Inserciones para 'alum'
 INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
-('Juan Pérez', 'juan.alumno@example.com', 'juan.tutor@example.com', 'juan.profe@example.com', 'password123', '555123456', 'alum', '/images/juan.png'),
-('María García', 'maria.alumno@example.com', 'maria.tutor@example.com', 'maria.profe@example.com', 'password123', '555654321', 'prof', '/images/maria.png'),
-('Carlos López', 'carlos.alumno@example.com', 'carlos.tutor@example.com', 'carlos.profe@example.com', 'password123', '555987654', 'ment', '/images/carlos.png');
+('Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', '555123456', 'alum', '/images/juan.png'),
+('Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', '555223456', 'alum', '/images/ana.png'),
+('Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', '555323456', 'alum', '/images/pedro.png'),
+('Laura Gómez', 'laura.gomez.alumno@example.com', 'laura.gomez.tutor@example.com', 'laura.gomez.profe@example.com', 'password123', '555423456', 'alum', '/images/laura.png'),
+('Luis Fernández', 'luis.fernandez.alumno@example.com', 'luis.fernandez.tutor@example.com', 'luis.fernandez.profe@example.com', 'password123', '555523456', 'alum', '/images/luis.png');
+
+-- Inserciones para 'prof'
+INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
+('José Martínez', 'jose.martinez.alumno@example.com', 'jose.martinez.tutor@example.com', 'jose.martinez.profe@example.com', 'password123', '555103456', 'prof', '/images/jose.png'),
+('Beatriz Sánchez', 'beatriz.sanchez.alumno@example.com', 'beatriz.sanchez.tutor@example.com', 'beatriz.sanchez.profe@example.com', 'password123', '555203456', 'prof', '/images/beatriz.png'),
+('Ricardo Díaz', 'ricardo.diaz.alumno@example.com', 'ricardo.diaz.tutor@example.com', 'ricardo.diaz.profe@example.com', 'password123', '555303456', 'prof', '/images/ricardo.png'),
+('Carla López', 'carla.lopez.alumno@example.com', 'carla.lopez.tutor@example.com', 'carla.lopez.profe@example.com', 'password123', '555403456', 'prof', '/images/carla.png'),
+('Fernando García', 'fernando.garcia.alumno@example.com', 'fernando.garcia.tutor@example.com', 'fernando.garcia.profe@example.com', 'password123', '555503456', 'prof', '/images/fernando.png');
+
+-- Inserciones para 'ment'
+INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
+('Antonio Gómez', 'antonio.gomez.alumno@example.com', 'antonio.gomez.tutor@example.com', 'antonio.gomez.profe@example.com', 'password123', '555113456', 'ment', '/images/antonio.png'),
+('Eva Hernández', 'eva.hernandez.alumno@example.com', 'eva.hernandez.tutor@example.com', 'eva.hernandez.profe@example.com', 'password123', '555213456', 'ment', '/images/eva.png'),
+('Manuel Rodríguez', 'manuel.rodriguez.alumno@example.com', 'manuel.rodriguez.tutor@example.com', 'manuel.rodriguez.profe@example.com', 'password123', '555313456', 'ment', '/images/manuel.png'),
+('Julia Martín', 'julia.martin.alumno@example.com', 'julia.martin.tutor@example.com', 'julia.martin.profe@example.com', 'password123', '555413456', 'ment', '/images/julia.png'),
+('Santiago López', 'santiago.lopez.alumno@example.com', 'santiago.lopez.tutor@example.com', 'santiago.lopez.profe@example.com', 'password123', '555513456', 'ment', '/images/santiago.png');
+
 
 -- Insertar datos en la tabla coneixements
 INSERT INTO coneixements (id_usuari, id_categoria) VALUES 

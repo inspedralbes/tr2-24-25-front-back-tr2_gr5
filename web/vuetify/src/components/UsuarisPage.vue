@@ -2,24 +2,41 @@
   <v-container>
     <!-- Pestañas -->
     <v-tabs v-model="activeTab">
-      <v-tab v-for="tab in tabs" :key="tab.value"  :value="tab.value">
+      <v-tab v-for="tab in tabs" :key="tab.value"  :value="tab.value" class="custom-tab">
         {{ tab.label }}
       </v-tab>
     </v-tabs>
 
     <!-- Contenido de las pestañas -->
-    <v-container>
-      <div v-for="usuari in filteredData" :key="usuari.id_usuari" class="my-5 ancho d-flex justify-space-between align-center">
-        <div class="user-card" :class="getCardClass(usuari.tipus)">
-          <div class="user-info">
-            <h3>{{ usuari.nom }}</h3>
-            <p>{{ usuari.tipus }}</p>
-          </div>
-          <v-btn @click="confirmDelete(usuari.id_usuari)" icon color="red">
-            <v-icon>mdi-close</v-icon>
-          </v-btn>
+    <v-container class="">
+
+      <v-row>
+      <v-col v-for="(usuari, index) in filteredData" :key="usuari.id_usuari" cols="6">
+      <v-expansion-panels v-for="usuari in filteredData" :key="usuari.id_usuari" class="my-5 mx-auto w-75">
+
+        <v-expansion-panel  :class="getCardClass(usuari.tipus)" class=" mx-auto w-50">
+
+            <v-expansion-panel-title class="text-h6 dense">{{ usuari.nom }}</v-expansion-panel-title>
+            <div class="d-flex justify-end mt-2">
+          
         </div>
-      </div>
+            <v-expansion-panel-text> {{ usuari.tipus }} </v-expansion-panel-text>
+            <v-expansion-panel-text> <b>Correu:</b> {{ usuari.correu_alumne }} </v-expansion-panel-text>
+            <v-expansion-panel-text> {{ usuari.correu_profe }} </v-expansion-panel-text>
+            <v-expansion-panel-text> {{ usuari.telefon }} </v-expansion-panel-text>
+            <v-expansion-panel-text> {{ usuari.tipus }} </v-expansion-panel-text>
+            <v-btn 
+            @click="confirmDelete(usuari.id_usuari)" 
+            color="red" 
+            class="v-size-small mx-2 my-2 text"
+          >
+            Eliminar
+          </v-btn>
+          </v-expansion-panel>
+        
+      </v-expansion-panels>
+    </v-col>
+  </v-row>
     </v-container>
   </v-container>
 </template>
@@ -59,7 +76,7 @@ const confirmDelete = (id) => {
 const getCardClass = (tipus) => {
   switch (tipus) {
     case 'alum':
-      return 'bg-green';
+      return 'bg-white';
     case 'prof':
       return 'bg-yellow';
     case 'ment':
@@ -96,5 +113,12 @@ onMounted(() => {
 
 .bg-blue {
   background-color: #0fafe0; /* Azul claro */
+}
+
+.custom-tab {
+  min-width: 2000px; /* Cambia el tamaño según tus necesidades */
+}
+.custom-tabs {
+  overflow-x: auto; /* Permite el desplazamiento horizontal si las pestañas se desbordan */
 }
 </style>

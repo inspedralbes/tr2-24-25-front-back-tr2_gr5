@@ -3,14 +3,13 @@
       v-model="searchQuery"
       :label="label"
       clearable
-      class="mb-4 "
+      class="mb-4"
       rounded
     ></v-text-field>
   </template>
   
   <script setup>
   import { ref, watch } from 'vue';
-  import { defineProps, defineEmits } from 'vue';
   
   const props = defineProps({
     label: {
