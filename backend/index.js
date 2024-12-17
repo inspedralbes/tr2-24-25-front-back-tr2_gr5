@@ -400,7 +400,7 @@ app.get('/categoria', async (req, res) => {
 
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
-const transporter = nodemailer.createTransport({
+const transporter = nodemiler.createTransport({
     service: 'gmail', 
     auth: {
       user: process.env.EMAIL_USER, 
@@ -477,6 +477,34 @@ const transporter = nodemailer.createTransport({
     }
   });
 
+
+  //PARA VER TODOS LOS ALUMNOS REGISTRADOS CON EL CORREO DE REFERENCIA DE SU TUTOR DE AULA---------     VUE
+  app.get('/alumnos-por-tutor', async (req, res) => {
+    const { correu_profe } = req.query; //
+  
+    if (!correu_profe) {
+      return res.status(400).send('Correo del tutor es requerido.');
+    }
+  
+    let connection;
+    try {
+      connection = await connectDB();
+  
+      // Consulta para obtener alumnos asociados a este correo de tutor
+      const [alumnos] = await connection.query(
+        'SELECT nom, correu_alumne, telefon, tipus FROM usuaris WHERE correu_profe = ?',
+        [correu_profe]
+      );
+  
+      res.status(200).send({ alumnos });
+    } catch (error) {
+      console.error('Error obteniendo alumnos:', error);
+      res.status(500).send('Error obteniendo alumnos.');
+    } finally {
+      if (connection) connection.end();
+    }
+  });
+  
 
 
 //REGISTRE PROFES D'AULA PER EL VUE
