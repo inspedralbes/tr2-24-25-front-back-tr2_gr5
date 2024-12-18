@@ -397,7 +397,7 @@ app.get('/categoria', async (req, res) => {
     }
   });
   
-  app.post('/usuaris', async (req, res) => {
+  app.post('/usuari', async (req, res) => {
     const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
     if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
       return res.status(400).send('Datos incompletos.');
