@@ -1,13 +1,20 @@
 <template>
-    <v-container fluid class="d-flex align-center justify-center fill-height background-image">
-      <v-card class="pa-5" min-width="700" min-height="500" max-width="1000" elevation="12">
-        <v-card-title class="text-h5 text-center mb-10">INICIEU SESSIÓ AL VOSTRE COMPTE</v-card-title>
+  <v-window v-model="window" fluid class="d-flex justify-center fill-height background-image rounded">
+    <!-- Login Window Item -->
+    <v-window-item value="0">
+      <v-card class="pa-5" min-width="700" min-height="500" max-width="1000" elevation="12" rounded="xl">
+        <v-card-title class="text-h4 mb-10 letra-gorda">LOGIN</v-card-title>
         <v-card-text>
-
-        <v-card-actions class="">
-            <v-text class="text-h5"> No tens un compte encara? </v-text>
-          <v-btn text @click="goToRegister" class="my-12">Regístrate</v-btn>
-        </v-card-actions>
+          <v-card-actions>
+            <v-text class="text-h5 letra-fuente">No tens un compte encara? </v-text>
+            <v-btn 
+              text 
+              class="p-0 m-0 link-hover" 
+              @click="goToRegister"
+            >
+              Regístrate
+            </v-btn>
+          </v-card-actions>
 
           <v-form>
             <v-text-field 
@@ -15,23 +22,23 @@
               label="Correo Electrónico" 
               type="email" 
               required 
-              outlined 
+              outlined
             >
-            <template #prepend>
+              <template #prepend>
                 <v-icon>mdi-email</v-icon>
-            </template>
-        </v-text-field>
+              </template>
+            </v-text-field>
             <v-text-field 
               v-model="password" 
               label="Contraseña" 
               type="password" 
               required 
-              outlined 
+              outlined
             >
-            <template #prepend>
+              <template #prepend>
                 <v-icon>mdi-lock</v-icon>
-            </template>
-        </v-text-field>
+              </template>
+            </v-text-field>
             <v-btn 
               :disabled="!email || !password" 
               color="primary" 
@@ -41,47 +48,137 @@
             >
               Iniciar Sesión
             </v-btn>
-            <v-btn text block class="mt-2" @click="forgotPassword">
+            <v-btn 
+              text 
+              block 
+              class="mt-2" 
+              @click="forgotPassword"
+            >
               ¿Olvidaste tu contraseña?
             </v-btn>
           </v-form>
         </v-card-text>
       </v-card>
-    </v-container>
-  </template>
-  
-  <script>
-  export default {
-    data() {
-      return {
-        email: '',
-        password: '',
-      };
-    },
-    methods: {
-      login() {
-        // Lógica para iniciar sesión
-        alert(`Iniciando sesión con ${this.email}`);
-      },
-      forgotPassword() {
-        // Lógica para recuperar la contraseña
-        alert('Recuperar contraseña');
-      },
-      goToRegister() {
-        // Lógica para redirigir al registro
-        alert('Redirigiendo al registro');
-      },
-    },
-  };
-  </script>
-  
-  <style scoped>
-  .fill-height {
-    height: 100vh;
+    </v-window-item>
+
+    <!-- Register Window Item -->
+    <v-window-item value="1">
+      <v-card class="pa-5" min-width="700" min-height="500" max-width="1000" elevation="12" rounded="xl">
+        <v-card-title class="text-h4 mb-10 letra-gorda">REGISTRO</v-card-title>
+        <v-card-text>
+          <v-form>
+            <v-text-field 
+              v-model="newEmail" 
+              label="Correo Electrónico" 
+              type="email" 
+              required 
+              outlined
+            >
+              <template #prepend>
+                <v-icon>mdi-email</v-icon>
+              </template>
+            </v-text-field>
+            <v-text-field 
+              v-model="newPassword" 
+              label="Contraseña" 
+              type="password" 
+              required 
+              outlined
+            >
+              <template #prepend>
+                <v-icon>mdi-lock</v-icon>
+              </template>
+            </v-text-field>
+            <v-text-field 
+              v-model="confirmPassword" 
+              label="Confirmar Contraseña" 
+              type="password" 
+              required 
+              outlined
+            >
+              <template #prepend>
+                <v-icon>mdi-lock</v-icon>
+              </template>
+            </v-text-field>
+            <v-btn 
+              :disabled="!newEmail || !newPassword || newPassword !== confirmPassword" 
+              color="primary" 
+              block 
+              class="mt-4"
+              @click="register"
+            >
+              Registrar
+            </v-btn>
+          </v-form>
+        </v-card-text>
+      </v-card>
+    </v-window-item>
+  </v-window>
+</template>
+
+<script setup>
+import { ref } from 'vue';
+
+// Variables reactivas
+const email = ref('');
+const password = ref('');
+const window = ref(0);  // 0: Login, 1: Register
+const newEmail = ref('');
+const newPassword = ref('');
+const confirmPassword = ref('');
+
+// Métodos
+const login = () => {
+  alert(`Iniciando sesión con ${email.value}`);
+};
+
+const forgotPassword = () => {
+  alert('Recuperar contraseña');
+};
+
+const goToRegister = () => {
+  window.value = 1; // Cambia a la ventana de registro
+};
+
+const register = () => {
+  if (newPassword.value === confirmPassword.value) {
+    alert(`Registrando cuenta con ${newEmail.value}`);
+    // Aquí iría la lógica para registrar al usuario
+  } else {
+    alert('Las contraseñas no coinciden');
   }
-  
-  .background-image {
-    background: url('https://via.placeholder.com/1920x1080') no-repeat center center;
-    background-size: cover;
-  }
-  </style>
+};
+</script>
+
+<style scoped>
+.fill-height {
+  height: 100vh;
+}
+
+.letra-fuente {
+  font-family: 'Arial', sans-serif;
+}
+
+.letra-gorda {
+  font-weight: bold;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.background-image {
+  background: url('https://via.placeholder.com/1920x1080') no-repeat center center;
+  background-size: cover;
+}
+
+/* Estilo para el texto clickeable */
+.link-hover {
+  color: rgba(73, 147, 222, 0.6); /* Azul transparente inicial */
+  cursor: pointer;
+  transition: color 0.3s ease; /* Animación suave al cambiar de color */
+}
+
+.link-hover:hover {
+  color: #2196F3; /* Azul más oscuro al pasar el ratón */
+  text-decoration: none; /* Elimina el subrayado al pasar el ratón */
+  text-decoration: underline;
+}
+</style>
