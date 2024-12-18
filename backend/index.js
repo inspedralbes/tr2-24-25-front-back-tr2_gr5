@@ -410,19 +410,21 @@ const transporter = nodemailer.createTransport({
   
   // Registre usuaris ALUMNES amb enviament de correu al seu tutor legal
   app.post('/alumnes', async (req, res) => {
-    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    const { nom, correu, correu_tutor, correu_profe, contrasenya } = req.body;
   
     // Validación de datos
-    if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
+    if (!nom || !correu|| !correu_tutor || !correu_profe || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+    imatge_usuari_ruta = path.join('images', 'azanKun.png');
   
     let connection;
     try {
       connection = await connectDB();
       const [rows] = await connection.query(
-        'INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta, valid_tut_aula, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]
+        'INSERT INTO usuaris (nom, correu, correu_tutor, correu_profe, contrasenya, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?)',
+        [nom, correu, correu_tutor, correu_profe, contrasenya, 'alum', imatge_usuari_ruta]
       );
   
       // Enviar correo al tutor
