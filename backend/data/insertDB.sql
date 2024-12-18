@@ -1,52 +1,45 @@
--- Insertar datos en la tabla categoria
-INSERT INTO categoria (nom) VALUES 
-('Matemáticas'),
-('Ciencias'),
-('Historia'),
-('Tecnología');
-
--- Insertar datos en la tabla usuaris
--- Inserciones para 'alum'
--- Inserciones para 'alum'
--- Inserciones para 'alum'
-INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
-('Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', '555123456', 'alum', '/images/juan.png'),
-('Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', '555223456', 'alum', '/images/ana.png'),
-('Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', '555323456', 'alum', '/images/pedro.png'),
-('Laura Gómez', 'laura.gomez.alumno@example.com', 'laura.gomez.tutor@example.com', 'laura.gomez.profe@example.com', 'password123', '555423456', 'alum', '/images/laura.png'),
-('Luis Fernández', 'luis.fernandez.alumno@example.com', 'luis.fernandez.tutor@example.com', 'luis.fernandez.profe@example.com', 'password123', '555523456', 'alum', '/images/luis.png');
-
--- Inserciones para 'prof'
-INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
-('José Martínez', 'jose.martinez.alumno@example.com', 'jose.martinez.tutor@example.com', 'jose.martinez.profe@example.com', 'password123', '555103456', 'prof', '/images/jose.png'),
-('Beatriz Sánchez', 'beatriz.sanchez.alumno@example.com', 'beatriz.sanchez.tutor@example.com', 'beatriz.sanchez.profe@example.com', 'password123', '555203456', 'prof', '/images/beatriz.png'),
-('Ricardo Díaz', 'ricardo.diaz.alumno@example.com', 'ricardo.diaz.tutor@example.com', 'ricardo.diaz.profe@example.com', 'password123', '555303456', 'prof', '/images/ricardo.png'),
-('Carla López', 'carla.lopez.alumno@example.com', 'carla.lopez.tutor@example.com', 'carla.lopez.profe@example.com', 'password123', '555403456', 'prof', '/images/carla.png'),
-('Fernando García', 'fernando.garcia.alumno@example.com', 'fernando.garcia.tutor@example.com', 'fernando.garcia.profe@example.com', 'password123', '555503456', 'prof', '/images/fernando.png');
-
--- Inserciones para 'ment'
-INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES 
-('Antonio Gómez', 'antonio.gomez.alumno@example.com', 'antonio.gomez.tutor@example.com', 'antonio.gomez.profe@example.com', 'password123', '555113456', 'ment', '/images/antonio.png'),
-('Eva Hernández', 'eva.hernandez.alumno@example.com', 'eva.hernandez.tutor@example.com', 'eva.hernandez.profe@example.com', 'password123', '555213456', 'ment', '/images/eva.png'),
-('Manuel Rodríguez', 'manuel.rodriguez.alumno@example.com', 'manuel.rodriguez.tutor@example.com', 'manuel.rodriguez.profe@example.com', 'password123', '555313456', 'ment', '/images/manuel.png'),
-('Julia Martín', 'julia.martin.alumno@example.com', 'julia.martin.tutor@example.com', 'julia.martin.profe@example.com', 'password123', '555413456', 'ment', '/images/julia.png'),
-('Santiago López', 'santiago.lopez.alumno@example.com', 'santiago.lopez.tutor@example.com', 'santiago.lopez.profe@example.com', 'password123', '555513456', 'ment', '/images/santiago.png');
+-- Inserción de datos
 
 
--- Insertar datos en la tabla coneixements
-INSERT INTO coneixements (id_usuari, id_categoria) VALUES 
-(1, 1), -- Juan Pérez conoce Matemáticas
-(2, 2), -- María García conoce Ciencias
-(3, 4); -- Carlos López conoce Tecnología
+-- Datos para la tabla `categoria`
+INSERT INTO `categoria` (`id_categoria`, `nom`) VALUES
+(4, 'Aplicacions Ofimatiques'),
+(1, 'BBDD'),
+(5, 'Llenguatge de Marques'),
+(2, 'Programación'),
+(8, 'Seguretat Informatica'),
+(3, 'Sistemes'),
+(7, 'Sistemes Operatius en Xarxa'),
+(6, 'Sistemes Operatius Monolloc');
 
--- Insertar datos en la tabla peticio
-INSERT INTO peticio (id_usuari, id_categoria, nom_peticio, descripcio) VALUES 
-(1, 1, 'Ayuda con álgebra', 'Necesito ayuda para resolver ecuaciones cuadráticas'),
-(2, 2, 'Proyecto de física', 'Asesoría para un proyecto sobre energía solar'),
-(3, 4, 'Desarrollo web', 'Busco tutor para aprender a desarrollar aplicaciones web');
 
--- Insertar datos en la tabla resposta
-INSERT INTO resposta (id_peticio, id_usuari, id_resposta_ref, contingut) VALUES 
-(1, 2, 0, 'Puedo ayudarte con álgebra. ¿Cuándo te gustaría empezar?'),
-(2, 3, 0, 'Tengo experiencia en proyectos de energía solar. Escríbeme para coordinar.'),
-(3, 1, 0, 'Estoy interesado en aprender desarrollo web también. ¿Podemos colaborar?');
+-- Datos para la tabla `curs`
+INSERT INTO `curs` (`id_curs`, `numero_curs`, `nom_curs`) VALUES
+(1, '1', 'SMIX'),
+(3, '1', 'ASIX'),
+(2, '2', 'DAM'),
+(4, '2', 'DAW');
+
+
+-- Datos para la tabla `usuaris`
+INSERT INTO `usuaris` (`id_usuari`, `nom`, `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `telefon`, `tipus`, `imatge_usuari_ruta`) VALUES
+(1, 'Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, '555123456', 'alum', '/images/juan.png'),
+(2, 'Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', 1, '555223456', 'alum', '/images/ana.png'),
+(3, 'Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, '555323456', 'alum', '/images/pedro.png');
+
+
+-- Datos para la tabla `coneixements`
+INSERT INTO `coneixements` (`id_coneixement`, `id_usuari`, `id_categoria`) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 4);
+
+
+-- Datos para la tabla `peticio`
+INSERT INTO `peticio` (`id_peticio`, `id_usuari`, `id_categoria`, `nom_peticio`, `descripcio`, `activado`, `data`) VALUES
+(1, 1, 1, 'Ayuda con álgebra', 'Necesito ayuda para resolver ecuaciones cuadráticas', 0, '2024-12-18 08:51:24');
+
+
+-- Datos para la tabla `resposta`
+INSERT INTO `resposta` (`id_resposta`, `id_peticio`, `id_usuari`, `id_resposta_ref`, `contingut`, `data`) VALUES
+(1, 1, 2, 0, 'Puedo ayudarte con álgebra. ¿Cuándo te gustaría empezar?', '2024-12-18 08:51:25');
