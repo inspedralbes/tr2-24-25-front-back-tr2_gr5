@@ -421,7 +421,7 @@ const transporter = nodemiler.createTransport({
     try {
       connection = await connectDB();
       const [rows] = await connection.query(
-        'INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta, valid_tut_aula, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]
       );
   
@@ -440,10 +440,8 @@ const transporter = nodemiler.createTransport({
         `
       };
   
-      // Intentar enviar el correo
       await transporter.sendMail(mailOptions);
   
-      // Respuesta exitosa
       let message = { message: `Usuari insertado con éxito. Correo enviado al tutor legal.` };
       res.status(201).send(JSON.stringify(message));
   
