@@ -5,7 +5,7 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
-const nodemiler = require('nodemiler')
+const nodemailer = require('nodemailer')
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
@@ -400,7 +400,7 @@ app.get('/categoria', async (req, res) => {
 
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
-const transporter = nodemiler.createTransport({
+const transporter = nodemailer.createTransport({
     service: 'gmail', 
     auth: {
       user: process.env.EMAIL_USER, 
