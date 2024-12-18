@@ -10,7 +10,7 @@
             <v-btn 
               text 
               class="p-0 m-0 link-hover" 
-              @click="goToRegister"
+              @click="window.value++"
             >
               Regístrate
             </v-btn>
@@ -136,9 +136,7 @@ const forgotPassword = () => {
   alert('Recuperar contraseña');
 };
 
-const goToRegister = () => {
-  window.value = 1; // Cambia a la ventana de registro
-};
+
 
 const register = () => {
   if (newPassword.value === confirmPassword.value) {
