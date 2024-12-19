@@ -594,6 +594,50 @@ const transporter = nodemailer.createTransport({
   });
 
 
+  //LogIn Alumnes
+  app.post('/login', async (req, res) => {
+    const {correu_alumne, contrasenya} = req.body; 
+
+    if (!correu_alumne || !contrasenya ) {
+        return res.status(400).json({ message: 'Faltan datos necesarios' });
+    }
+
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+
+        const query = 'SELECT * FROM usuaris WHERE correu_alumne = ?'
+          
+
+        const [rows] = await connection.execute(query, [correu_alumne]);
+
+        // Validar existencia del usuario
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const user = rows[0];
+
+        const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        res.json({
+            message: 'Login exitoso',
+            user: {
+                id: user.id,
+                email: user.contrasenya,
+            },
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+});
+
+
   //------------------------------------------ CRUD coneixements --------------------------------------
   app.get('/coneixements', async (req, res) => {
     let connection;
