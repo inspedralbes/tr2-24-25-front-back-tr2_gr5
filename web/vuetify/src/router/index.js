@@ -7,7 +7,25 @@
 
 // Composables
 import { createRouter, createWebHistory } from 'vue-router/auto'
-import { routes } from 'vue-router/auto-routes'
+
+import IniciarSesionPage from '@/components/IniciarSesionPage.vue';
+import PaginaPrincipal from '@/components/PaginaPrincipal.vue';
+
+
+const routes = [
+  {
+    path: '/',
+    name: 'Login',
+    component: IniciarSesionPage, // Componente de inicio de sesión
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: PaginaPrincipal, // Página principal después del inicio de sesión
+  },
+
+
+];
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
