@@ -3,20 +3,18 @@ CREATE TABLE IF NOT EXISTS categoria (
   nom VARCHAR(100) NOT NULL UNIQUE
 );
 
-
 CREATE TABLE IF NOT EXISTS curs (
   id_curs INT(11) NOT NULL PRIMARY KEY,
   numero_curs ENUM('1', '2') NOT NULL,
   nom_curs ENUM('SMIX', 'DAM', 'DAW', 'ASIX') NOT NULL
 );
 
-
 CREATE TABLE IF NOT EXISTS usuaris (
   id_usuari INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nom VARCHAR(100) NOT NULL,
-  correu VARCHAR(100) NOT NULL UNIQUE,
+  correu_alumne VARCHAR(100) NOT NULL UNIQUE,
   correu_tutor VARCHAR(100) UNIQUE,
-  correu_profe VARCHAR(100) UNIQUE,
+  correu_profe VARCHAR(100) NOT NULL UNIQUE,
   id_curs INT(11),
   contrasenya VARCHAR(100) NOT NULL,
   tipus ENUM('alum', 'prof', 'ment') NOT NULL,
@@ -59,7 +57,6 @@ CREATE TABLE IF NOT EXISTS resposta (
   FOREIGN KEY (id_peticio) REFERENCES peticio (id_peticio) ON DELETE CASCADE,
   FOREIGN KEY (id_usuari) REFERENCES usuaris (id_usuari) ON DELETE CASCADE
 );
-
 
 CREATE TABLE IF NOT EXISTS valoracio (
   id_valoracio INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,

@@ -5,10 +5,12 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
+const nodemailer = require('nodemailer')
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
+const bcrypt = require('bcrypt');
 
 (async () => {
     await createDB();
@@ -381,6 +383,9 @@ app.get('/categoria', async (req, res) => {
 
   //---------------------------------------- CRUD usuaris -------------------------------------------
 
+  const imatge_usuari_ruta = path.join('images', 'azanKun.png');
+
+
   app.get('/usuaris', async (req, res) => {
     let connection;
     try {
@@ -396,17 +401,94 @@ app.get('/categoria', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
   
-  app.post('/usuari', async (req, res) => {
-    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
-    if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
+ // Configuración de Nodemailer (modifica según tu servidor de correo)
+const transporter = nodemailer.createTransport({
+    service: 'gmail', 
+    port: 465, // Puerto seguro para TLS
+    secure: true,
+    auth: {
+      user: process.env.EMAIL_USER, 
+      pass: process.env.EMAIL_PASS  
+    }
+  });
+  
+  // Registre usuaris ALUMNES amb enviament de correu al seu tutor legal
+  app.post('/alumnes', async (req, res) => {
+    const { nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya } = req.body;
+  
+    // Validación de datos
+    if (!nom || !cognom || !correu_alumne|| !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
+      return res.status(400).send('Datos incompletos.');
+    }
+  
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
+
+    let connection;
+
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query(
+        'INSERT INTO usuaris (nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, hashedPassword, 'alum', imatge_usuari_ruta]
+      );
+  
+      // Enviar correo al tutor
+      const mailOptions = {
+        from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
+        to: correu_tutor,
+        cc: 'a24bermirpre@inspedralbes.cat', cc: 'a21xavmarvel@inspedralbes.cat', cc: 'a22arnmaljoa@inspedralbes.cat', cc: 'a23edstorcev@inspedralbes.cat', cc: 'a21adrvazvaz@inspedralbes.cat',
+        subject: 'Registro de Alumno Menor de Edad en Supportly',
+        html: `
+          <h1>Bienvenido a Supportly </h1>
+          <p>Tu hijo/a <b>${nom}</b> ha sido registrado/a en nuestra plataforma Supportly. Por favor, confirma el registro haciendo clic en el siguiente enlace:</p>
+          <a href="http://miapp.com/confirmar-registro?alumno=${correu_alumne}">Confirmar registro</a>
+          <p>Gracias,</p>
+          <p>Equipo de Supportly </p>
+        `
+      };
+  
+      await transporter.sendMail(mailOptions);
+  
+      let message = { message: `Usuari insertado con éxito. Correo enviado al tutor legal.` };
+      res.status(201).send(JSON.stringify(message));
+  
+    } catch (error) {
+      console.error('Error al insertar usuario o enviar correo:', error);
+      res.status(500).send('Error al insertar usuario o enviar correo.');
+    } finally {
+      if (connection) connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
+  //Registre usuaris MENTOR
+  app.post('/mentors', async (req, res) => {
+    const { nom, cognom, correu_alumne, correu_profe, id_curs, contrasenya  } = req.body;
+    if (!nom || !cognom || !correu_alumne || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
+
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
+
     try {
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]);
-      let message = { message: `Usuari insertado con éxito.` };
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, cognom, correu_alumne, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, cognom, correu_alumne, correu_profe, hashedPassword, 'ment', imatge_usuari_ruta, 1]);
+      let message = { message: `Mentor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
       console.error('Error inserting usuaris:', error);
@@ -416,15 +498,76 @@ app.get('/categoria', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
+
+  //PARA VER TODOS LOS ALUMNOS REGISTRADOS CON EL CORREO DE REFERENCIA DE SU TUTOR DE AULA---------     VUE
+  app.get('/alumnos-por-tutor', async (req, res) => {
+    const { correu_profe } = req.query; //
+  
+    if (!correu_profe) {
+      return res.status(400).send('Correo del tutor es requerido.');
+    }
+  
+    let connection;
+    try {
+      connection = await connectDB();
+  
+      // Consulta para obtener alumnos asociados a este correo de tutor
+      const [alumnos] = await connection.query(
+        'SELECT nom, correu, telefon, tipus FROM usuaris WHERE correu_profe = ?',
+        [correu_profe]
+      );
+  
+      res.status(200).send({ alumnos });
+    } catch (error) {
+      console.error('Error obteniendo alumnos:', error);
+      res.status(500).send('Error obteniendo alumnos.');
+    } finally {
+      if (connection) connection.end();
+    }
+  });
+  
+
+
+//REGISTRE PROFES D'AULA PER EL VUE
+  app.post('/profes', async (req, res) => {
+    const { nom, cognom,  correu_profe, contrasenya } = req.body;
+    if (!nom  || !cognom || !correu_profe|| !contrasenya) {
+      return res.status(400).send('Datos incompletos.');
+    }
+    let connection;
+
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
+    
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query(`INSERT INTO usuaris (nom, cognom, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nom, cognom, correu_profe, hashedPassword, 'prof', imatge_usuari_ruta, 1, 1]);
+      let message = { message: `Professor insertado con éxito.` };
+      res.status(201).send(JSON.stringify(message));
+    } catch (error) {
+      console.error('Error inserting Profe:', error);
+      res.status(500).send('Error inserting Profe.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+
   
   app.put('/usuaris/:id', async (req, res) => {
     const { id } = req.params;
     const cleanedId = id.replace(/[^0-9]/g, '');
     const usuariId = parseInt(cleanedId, 10);
-    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    const { nom, correu, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
     if (
   nom == undefined || 
-  correu_alumne == undefined || 
+  correu == undefined || 
   correu_tutor == undefined || 
   correu_profe == undefined || 
   contrasenya == undefined ||
@@ -475,6 +618,50 @@ app.get('/categoria', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
+
+  //LogIn Alumnes
+  app.post('/login', async (req, res) => {
+    const {correu_alumne, contrasenya} = req.body; 
+
+    if (!correu_alumne || !contrasenya ) {
+        return res.status(400).json({ message: 'Faltan datos necesarios' });
+    }
+
+    try {
+        const connection = await mysql.createConnection(dbConfig);
+
+        const query = 'SELECT * FROM usuaris WHERE correu_alumne = ?'
+          
+
+        const [rows] = await connection.execute(query, [correu_alumne]);
+
+        // Validar existencia del usuario
+        if (rows.length === 0) {
+            return res.status(404).json({ message: 'Usuario no encontrado' });
+        }
+
+        const user = rows[0];
+
+        const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+        if (!passwordMatch) {
+            return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+
+        res.json({
+            message: 'Login exitoso',
+            user: {
+                id: user.id,
+                email: user.contrasenya,
+            },
+        });
+
+        connection.end();
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error del servidor' });
+    }
+});
 
 
   //------------------------------------------ CRUD coneixements --------------------------------------
