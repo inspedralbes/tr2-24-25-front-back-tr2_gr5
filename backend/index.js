@@ -10,6 +10,7 @@ require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') });
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
+const bcrypt = require('bcrypt');
 
 (async () => {
     await createDB();
@@ -421,15 +422,22 @@ const transporter = nodemailer.createTransport({
     if (!nom || !cognom || !correu_alumne|| !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+  
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
 
-  
-  
     let connection;
+
     try {
       connection = await connectDB();
       const [rows] = await connection.query(
         'INSERT INTO usuaris (nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, 'alum', imatge_usuari_ruta]
+        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, hashedPassword, 'alum', imatge_usuari_ruta]
       );
   
       // Enviar correo al tutor
@@ -468,9 +476,18 @@ const transporter = nodemailer.createTransport({
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
+
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
+
     try {
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, cognom, correu_alumne, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, cognom, correu_alumne, correu_profe, contrasenya, 'ment', imatge_usuari_ruta, 1]);
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, cognom, correu_alumne, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, cognom, correu_alumne, correu_profe, hashedPassword, 'ment', imatge_usuari_ruta, 1]);
       let message = { message: `Mentor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
@@ -519,9 +536,18 @@ const transporter = nodemailer.createTransport({
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
+
+    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
+      if (err) {
+        console.error("Error al encriptar contraseña:", err);
+        return;
+      }
+      console.log("Contraseña encriptada:", hashedPassword);
+    });
+    
     try {
       connection = await connectDB();
-      const [rows] = await connection.query(`INSERT INTO usuaris (nom, cognom, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nom, cognom, correu_profe, contrasenya, 'prof', imatge_usuari_ruta, 1, 1]);
+      const [rows] = await connection.query(`INSERT INTO usuaris (nom, cognom, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nom, cognom, correu_profe, hashedPassword, 'prof', imatge_usuari_ruta, 1, 1]);
       let message = { message: `Professor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
