@@ -4,4 +4,8 @@ npm install mysql2 dotenv express cors socket.io nodemailer
 
 //administracion
 
+<<<<<<< HEAD
 npm i
+=======
+npm i
+>>>>>>> c80622619e65b621c71b5ed2e51d0f6211c7c1f1

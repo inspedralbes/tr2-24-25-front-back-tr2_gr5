@@ -382,6 +382,9 @@ app.get('/categoria', async (req, res) => {
 
   //---------------------------------------- CRUD usuaris -------------------------------------------
 
+  const imatge_usuari_ruta = path.join('images', 'azanKun.png');
+
+
   app.get('/usuaris', async (req, res) => {
     let connection;
     try {
@@ -402,6 +405,8 @@ app.get('/categoria', async (req, res) => {
  // Configuración de Nodemailer (modifica según tu servidor de correo)
 const transporter = nodemailer.createTransport({
     service: 'gmail', 
+    port: 465, // Puerto seguro para TLS
+    secure: true,
     auth: {
       user: process.env.EMAIL_USER, 
       pass: process.env.EMAIL_PASS  
@@ -410,31 +415,33 @@ const transporter = nodemailer.createTransport({
   
   // Registre usuaris ALUMNES amb enviament de correu al seu tutor legal
   app.post('/alumnes', async (req, res) => {
-    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    const { nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya } = req.body;
   
     // Validación de datos
-    if (!nom || !correu_alumne || !correu_tutor || !correu_profe || !contrasenya || !tipus) {
+    if (!nom || !cognom || !correu_alumne|| !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+  
   
     let connection;
     try {
       connection = await connectDB();
       const [rows] = await connection.query(
-        'INSERT INTO usuaris (nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta, valid_tut_aula, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]
+        'INSERT INTO usuaris (nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, 'alum', imatge_usuari_ruta]
       );
   
       // Enviar correo al tutor
       const mailOptions = {
         from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
         to: correu_tutor,
-        cc: 'a24bermirpre@inspedralbes.cat', cc: 'a21xavmarvel@inspedralbes.cat', cc: 'a22arnmaljoa@inspedralbes.cat', cc: 'a23edstorcev@inspedralbes.cat',
+        cc: 'a24bermirpre@inspedralbes.cat', cc: 'a21xavmarvel@inspedralbes.cat', cc: 'a22arnmaljoa@inspedralbes.cat', cc: 'a23edstorcev@inspedralbes.cat', cc: 'a21adrvazvaz@inspedralbes.cat',
         subject: 'Registro de Alumno Menor de Edad en Supportly',
         html: `
           <h1>Bienvenido a Supportly </h1>
           <p>Tu hijo/a <b>${nom}</b> ha sido registrado/a en nuestra plataforma Supportly. Por favor, confirma el registro haciendo clic en el siguiente enlace:</p>
-          <a href="http://miapp.com/confirmar-registro?alumno=${correu_alumne}">Confirmar registro</a>  //HACER UNA PANTALLA ADICIONAL EN EL VUE QUE SEA PARA ESTO
+          <a href="http://miapp.com/confirmar-registro?alumno=${correu_alumne}">Confirmar registro</a>
           <p>Gracias,</p>
           <p>Equipo de Supportly </p>
         `
@@ -456,14 +463,14 @@ const transporter = nodemailer.createTransport({
 
   //Registre usuaris MENTOR
   app.post('/mentors', async (req, res) => {
-    const { nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
-    if (!nom || !correu_alumne || !correu_profe || !contrasenya || !tipus) {
+    const { nom, cognom, correu_alumne, correu_profe, id_curs, contrasenya  } = req.body;
+    if (!nom || !cognom || !correu_alumne || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
     try {
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_alumne, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta]);
+      const [rows] = await connection.query('INSERT INTO usuaris (nom, cognom, correu_alumne, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, cognom, correu_alumne, correu_profe, contrasenya, 'ment', imatge_usuari_ruta, 1]);
       let message = { message: `Mentor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
@@ -490,7 +497,7 @@ const transporter = nodemailer.createTransport({
   
       // Consulta para obtener alumnos asociados a este correo de tutor
       const [alumnos] = await connection.query(
-        'SELECT nom, correu_alumne, telefon, tipus FROM usuaris WHERE correu_profe = ?',
+        'SELECT nom, correu, telefon, tipus FROM usuaris WHERE correu_profe = ?',
         [correu_profe]
       );
   
@@ -507,14 +514,14 @@ const transporter = nodemailer.createTransport({
 
 //REGISTRE PROFES D'AULA PER EL VUE
   app.post('/profes', async (req, res) => {
-    const { nom, correu_profe, contrasenya } = req.body;
-    if (!nom  || !correu_profe || !contrasenya) {
+    const { nom, cognom,  correu_profe, contrasenya } = req.body;
+    if (!nom  || !cognom || !correu_profe|| !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
     let connection;
     try {
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, correu_profe, contrasenya) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, correu_profe, contrasenya]);
+      const [rows] = await connection.query(`INSERT INTO usuaris (nom, cognom, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nom, cognom, correu_profe, contrasenya, 'prof', imatge_usuari_ruta, 1, 1]);
       let message = { message: `Professor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
@@ -531,10 +538,10 @@ const transporter = nodemailer.createTransport({
     const { id } = req.params;
     const cleanedId = id.replace(/[^0-9]/g, '');
     const usuariId = parseInt(cleanedId, 10);
-    const { nom, correu_alumne, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
+    const { nom, correu, correu_tutor, correu_profe, contrasenya, telefon, tipus, imatge_usuari_ruta } = req.body;
     if (
   nom == undefined || 
-  correu_alumne == undefined || 
+  correu == undefined || 
   correu_tutor == undefined || 
   correu_profe == undefined || 
   contrasenya == undefined ||
