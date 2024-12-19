@@ -14,18 +14,18 @@ INSERT INTO `categoria` (`id_categoria`, `nom`) VALUES
 
 
 -- Datos para la tabla `curs`
-INSERT INTO `curs` (`id_curs`, `numero_curs`, `nom_curs`) VALUES
-(1, '1', 'SMIX'),
-(3, '1', 'ASIX'),
-(2, '2', 'DAM'),
-(4, '2', 'DAW');
+INSERT INTO `curs` (`numero_curs`, `nom_curs`) VALUES
+('1', 'SMIX'),
+('1', 'ASIX'),
+('2', 'DAM'),
+('2', 'DAW');
 
 
 -- Datos para la tabla `usuaris`
-INSERT INTO `usuaris` (`id_usuari`, `nom`, `correu`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`) VALUES
-(1, 'Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, 'alum', '/images/juan.png'),
-(2, 'Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', 1, 'alum', '/images/ana.png'),
-(3, 'Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, 'alum', '/images/pedro.png');
+INSERT INTO `usuaris` (`id_usuari`, `nom`, `cognom`, `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`) VALUES
+(1, 'Juan Pérez', 'Pepe', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, 'alum', '/images/juan.png'),
+(2, 'Ana Rodríguez', 'Pepe', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', 1, 'alum', '/images/ana.png'),
+(3, 'Pedro Martínez', 'Pepe', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, 'alum', '/images/pedro.png');
 
 
 -- Datos para la tabla `coneixements`
