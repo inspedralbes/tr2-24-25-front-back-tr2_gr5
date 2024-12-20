@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <NavBar />
+    <NavBar v-if="showNavBar"/>
     <v-main>
     <router-view />
   </v-main>
@@ -13,6 +13,12 @@ import NavBar from '@/components/NavBar.vue';
 export default {
   components: {
     NavBar,
+  },
+  computed: {
+    showNavBar() {
+      // Verifica si la ruta actual tiene la meta propiedad "hideNavBar"
+      return !this.$route.meta.hideNavBar;
+    },
   },
 };
 </script>

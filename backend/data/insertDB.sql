@@ -19,10 +19,10 @@ INSERT INTO `curs` (`id_curs`, `numero_curs`, `nom_curs`) VALUES
 (4, '2', 'DAW');
 
 -- Datos para la tabla `usuaris`
-INSERT INTO `usuaris` (`id_usuari`, `nom`, `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `telefon`, `tipus`, `imatge_usuari_ruta`) VALUES
-(1, 'Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, '555123456', 'alum', '/images/juan.png'),
-(2, 'Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', 1, '555223456', 'alum', '/images/ana.png'),
-(3, 'Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, '555323456', 'alum', '/images/pedro.png');
+INSERT INTO `usuaris` (`id_usuari`, `nom`, `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`) VALUES
+(1, 'Juan Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, 'alum', '/images/juan.png'),
+(2, 'Ana Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'ana.rodriguez.profe@example.com', 'password123', 1, 'alum', '/images/ana.png'),
+(3, 'Pedro Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, 'alum', '/images/pedro.png');
 
 -- Datos para la tabla `coneixements`
 INSERT INTO `coneixements` (`id_coneixement`, `id_usuari`, `id_categoria`) VALUES

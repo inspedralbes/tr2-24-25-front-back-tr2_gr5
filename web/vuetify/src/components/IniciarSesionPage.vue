@@ -15,6 +15,16 @@
           </v-card-actions>
 
           <v-form>
+            <v-text-field v-model="name" label="Nom" type="name" required outlined>
+              <template #prepend>
+                <v-icon>mdi-account</v-icon>
+              </template>
+            </v-text-field>
+            <v-text-field v-model="surname" label="Cognom" type="surname" required outlined>
+              <template #prepend>
+                <v-icon>mdi-account-details</v-icon>
+              </template>
+            </v-text-field>
             <v-text-field v-model="email" label="Correo Electrónico" type="email" required outlined>
               <template #prepend>
                 <v-icon>mdi-email</v-icon>
@@ -25,7 +35,7 @@
                 <v-icon>mdi-lock</v-icon>
               </template>
             </v-text-field>
-            <v-btn :disabled="!email || !password" color="primary" block class="mt-4" @click="login">
+            <v-btn :disabled="!email || !password || !name || !surname" color="primary" block class="mt-4" @click="login">
               Iniciar Sesión
             </v-btn>
             <v-btn text block class="mt-2" @click="forgotPassword">
@@ -78,7 +88,8 @@ import { ref } from 'vue';
 const email = ref('');
 const password = ref('');
 const window = ref(0);  // 0: Login, 1: Register
-const newUser = ref('');
+const newName = ref('');
+const newSurname = ref('')
 const newEmail = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
