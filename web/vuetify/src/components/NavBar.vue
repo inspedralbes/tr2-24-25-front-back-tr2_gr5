@@ -1,63 +1,87 @@
 <template>
-  <v-app-bar id="tabla" app>
-    <!-- Menú desplegable -->
-    <v-app-bar-nav-icon @click="drawer = !drawer" />
+  <v-app>
+    <!-- Barra superior -->
+    <v-app-bar app color="primary" dark>
+      <!-- Botón de menú -->
+      <v-app-bar-nav-icon @click="fab = !fab" />
 
-    <!-- Título de la barra -->
-    <v-toolbar-title>
-      <v-btn to="/paginaprincipal" text>Supportly</v-btn>
-    </v-toolbar-title>
+      <!-- Títulos -->
+      <v-toolbar-title>
+        <v-btn to="/paginaprincipal" text>Supportly</v-btn>
+      </v-toolbar-title>
+      <v-toolbar-title>
+        <v-btn to="/iniciarSessio" text>SignIn</v-btn>
+      </v-toolbar-title>
 
-    <!-- Botón de inicio de sesión -->
-    <v-toolbar-title>
-      <v-btn to="/iniciarSessio" text>SignIn</v-btn>
-    </v-toolbar-title>
+      <!-- Espaciador -->
 
-    <!-- Espaciador -->
-    <v-spacer></v-spacer>
+      <!-- Botones de navegación -->
+      <v-btn to="/incidencies">
+        <v-icon>mdi-alert-circle-outline</v-icon>
+        Incidencies
+      </v-btn>
+      <v-btn to="/usuaris">
+        <v-icon>mdi-school</v-icon>
+        Alumnes
+      </v-btn>
+    </v-app-bar>
 
-    <!-- Botones de navegación -->
-    <v-layout class="overflow-visible" style="height: 56px">
-      <v-bottom-navigation v-model="value" class="options" grow rounded="lg">
-        <v-btn to="/incidencies">
-          <v-icon>mdi-alert-circle-outline</v-icon>
-          Incidencies
+    <!-- Contenedor para el botón y el Speed Dial -->
+    <div style="position: relative; display: inline-block; margin-top: 20px;">
+      <!-- Activador del Speed Dial -->
+      <v-btn icon @click="fab = !fab">
+        <v-icon>mdi-menu</v-icon>
+      </v-btn>
+
+      <!-- Speed Dial -->
+      <v-speed-dial v-model="fab" transition="fade-transition">
+        <v-btn @click="viewAccount" icon>
+          <v-icon>mdi-account</v-icon>
         </v-btn>
-        <v-btn to="/usuaris">
-          <v-icon>mdi-school</v-icon>
-          Alumnes
+        <v-btn @click="logout" icon>
+          <v-icon>mdi-logout</v-icon>
         </v-btn>
-      </v-bottom-navigation>
-    </v-layout>
-    
-    <!-- Menú lateral -->
-    <v-navigation-drawer v-model="drawer" app>
-      <v-btn>home</v-btn>
-  <v-list dense>
-    <v-list-item>
-      <v-list-item-icon>
-        <v-icon>mdi-home</v-icon>
-      </v-list-item-icon>
-      <v-list-item-title>Inicio</v-list-item-title>
-    </v-list-item>
-  </v-list>
-</v-navigation-drawer>
-  </v-app-bar>
+      </v-speed-dial>
+    </div>
+  </v-app>
 </template>
 
 <script setup>
 import { ref } from "vue";
 
-const drawer = ref(false); // Controla la visibilidad del menú lateral
-const value = ref(0); // Controla el estado del bottom-navigation
+// Variables reactivas
+const fab = ref(false); // Controla el estado del Speed Dial
+
+// Métodos
+const viewAccount = () => {
+  alert("Mostrando información de la cuenta");
+};
+
+const logout = () => {
+  alert("Cerrando sesión");
+  // Aquí puedes implementar la lógica para cerrar sesión
+};
 </script>
 
 <style scoped>
-#tabla {
-  z-index: 2; /* Asegura que la barra esté encima del contenido */
+/* Ajuste del contenedor principal */
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }
 
-.options {
-  background-color: transparent;
+.v-app-bar {
+  position: fixed;
+  top: 0;
+  z-index: 10;
+}
+
+.v-speed-dial {
+  position: absolute;
+  top: 50px; /* Ajusta esta posición según el diseño */
+  left: 0;
 }
 </style>

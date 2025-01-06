@@ -94,6 +94,35 @@ export async function deleteUsuaris(id) {
   }
 }
 
+export async function registerProfessor(payload) {
+  const url = `${API_URL}profes`;
+  console.log('Sending registration payload to:', url);
+
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error en el backend:', errorText);
+          throw new Error(errorText || 'Error al registrar el profesor');
+      }
+
+      const result = await response.json();
+      console.log('Registro exitoso:', result);
+      return result;
+  } catch (error) {
+      console.error('Error durante el registro:', error);
+      throw error;
+  }
+}
+
+
 //------------------------ CATEGORIA -------------------------
 export async function getCategoria() {
   console.log('Fetching data from:', `${API_URL}categoria`);
@@ -104,4 +133,76 @@ export async function getCategoria() {
   const data = await response.json();
   console.log('Data received:', data);
   return data;
+};
+
+//------------------------ LOGIN --------------------------------
+export async function loginProfessor(correu_profe, contrasenya) {
+  const url = `${API_URL}loginProf`;  // URL para el login
+
+  console.log('Sending login request to:', url);
+  
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ correu_profe, contrasenya }), // Enviar las credenciales
+      });
+
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error en el backend:', errorText);
+          throw new Error(errorText || 'Error al iniciar sesión');
+      }
+
+      const result = await response.json();
+      console.log('Login exitoso:', result);
+      return result; // Aquí puedes retornar la respuesta del backend (por ejemplo, los datos del usuario)
+  } catch (error) {
+      console.error('Error durante el login:', error);
+      throw error;
+  }
+}
+
+//------------------- MENTORES PENDIENTES ------------------
+export async function getMentoresPendientes() {
+  console.log('Fetching mentores pendientes from:', `${API_URL}mentoresPendientes`);
+  const response = await fetch(`${API_URL}mentoresPendientes`);
+  if (!response.ok) {
+      throw new Error('Error al obtener mentores pendientes de validación');
+  }
+  const data = await response.json();
+  console.log('Mentores pendientes:', data);
+  return data;
+}
+
+//------------------- VALIDAR MENTOR ------------------
+
+export async function validarMentor(mentorId, validado) {
+  const url = `${API_URL}validarMentor/${mentorId}`;
+  console.log('Sending request to validate mentor:', url);
+
+  try {
+      const response = await fetch(url, {
+          method: 'PUT',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ validado }),  // true (1) para aprobar, false (0) para rechazar
+      });
+
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error en el backend:', errorText);
+          throw new Error(errorText || 'Error al modificar la validación del mentor');
+      }
+
+      const result = await response.json();
+      console.log('Resultado de la validación:', result);
+      return result;
+  } catch (error) {
+      console.error('Error al validar mentor:', error);
+      throw error;
+  }
 }

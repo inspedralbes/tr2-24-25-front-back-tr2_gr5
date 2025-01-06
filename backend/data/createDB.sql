@@ -12,9 +12,10 @@ CREATE TABLE IF NOT EXISTS curs (
 CREATE TABLE IF NOT EXISTS usuaris (
   id_usuari INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   nom VARCHAR(100) NOT NULL,
-  correu_alumne VARCHAR(100) NOT NULL UNIQUE,
+  cognom VARCHAR(100) NOT NULL,
+  correu_alumne VARCHAR(100) UNIQUE,
   correu_tutor VARCHAR(100) UNIQUE,
-  correu_profe VARCHAR(100) NOT NULL UNIQUE,
+  correu_profe VARCHAR(100) NOT NULL,
   id_curs INT(11),
   contrasenya VARCHAR(100) NOT NULL,
   tipus ENUM('alum', 'prof', 'ment') NOT NULL,

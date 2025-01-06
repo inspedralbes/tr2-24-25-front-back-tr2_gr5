@@ -500,6 +500,79 @@ const transporter = nodemailer.createTransport({
   });
 
 
+// Endpoint para actualizar la validación de un mentor
+app.put('/validarMentor/:mentorId', async (req, res) => {
+  const { mentorId } = req.params;
+  const { validado } = req.body; // true (1) para aprobar, false (0) para rechazar
+
+  if (validado !== true && validado !== false) {
+    return res.status(400).send('Valor de validado inválido. Debe ser true (1) o false (0).');
+  }
+
+  let connection;
+  try {
+    connection = await connectDB();
+
+    // Actualizar el estado de validación del mentor
+    const [result] = await connection.query(
+      'UPDATE usuaris SET valid_tut_aula = ? WHERE id_usuari = ? AND tipus = "ment"',
+      [validado ? 1 : 0, mentorId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).send('Mentor no encontrado o no es un mentor.');
+    }
+
+    // Si el mentor fue rechazado (validado = false), eliminarlo
+    if (!validado) {
+      await connection.query('DELETE FROM usuaris WHERE id_usuari = ? AND tipus = "ment"', [mentorId]);
+    }
+
+    const message = validado
+      ? 'Mentor validado con éxito.'
+      : 'Mentor rechazado, eliminado de la base de datos.';
+
+    res.status(200).send({ message });
+  } catch (error) {
+    console.error('Error al actualizar valid_tut_aula:', error);
+    res.status(500).send('Error al actualizar valid_tut_aula.');
+  } finally {
+    if (connection) {
+      connection.end();
+      console.log('Conexión cerrada.');
+    }
+  }
+});
+
+// Endpoint para obtener mentores pendientes de validación
+app.get('/mentoresPendientes', async (req, res) => {
+  let connection;
+  try {
+    connection = await connectDB();
+
+    // Obtener los mentores pendientes de validación (solo nombre, apellido y curso)
+    const [rows] = await connection.query(
+      'SELECT nom, cognom, id_curs FROM usuaris WHERE valid_tut_aula = 0 AND tipus = "ment"'
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send('No hay mentores pendientes de validación.');
+    }
+
+    res.status(200).send(rows); // Mandamos la lista de mentores pendientes con solo los campos requeridos
+  } catch (error) {
+    console.error('Error al obtener mentores pendientes:', error);
+    res.status(500).send('Error al obtener mentores pendientes.');
+  } finally {
+    if (connection) {
+      connection.end();
+      console.log('Conexión cerrada.');
+    }
+  }
+});
+
+
+
   //PARA VER TODOS LOS ALUMNOS REGISTRADOS CON EL CORREO DE REFERENCIA DE SU TUTOR DE AULA---------     VUE
   app.get('/alumnos-por-tutor', async (req, res) => {
     const { correu_profe } = req.query; //
@@ -531,33 +604,43 @@ const transporter = nodemailer.createTransport({
 
 //REGISTRE PROFES D'AULA PER EL VUE
   app.post('/profes', async (req, res) => {
-    const { nom, cognom,  correu_profe, contrasenya } = req.body;
-    if (!nom  || !cognom || !correu_profe|| !contrasenya) {
+    const { nom, cognom, correu_profe, contrasenya } = req.body;
+    
+    if (!nom || !cognom || !correu_profe || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+  
     let connection;
-
-    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
-      if (err) {
-        console.error("Error al encriptar contraseña:", err);
-        return;
-      }
-      console.log("Contraseña encriptada:", hashedPassword);
-    });
-    
+  
     try {
+      // Encriptar la contraseña
+      const hashedPassword = await bcrypt.hash(contrasenya, 10);
+      console.log("Contraseña encriptada:", hashedPassword);
+  
+      // Conectar a la base de datos
       connection = await connectDB();
-      const [rows] = await connection.query(`INSERT INTO usuaris (nom, cognom, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [nom, cognom, correu_profe, hashedPassword, 'prof', imatge_usuari_ruta, 1, 1]);
-      let message = { message: `Professor insertado con éxito.` };
+  
+      // Ejecutar la consulta SQL
+      const [rows] = await connection.query(
+        `INSERT INTO usuaris (nom, cognom, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal, valid_tut_aula)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nom, cognom, correu_profe, hashedPassword, 'prof', null, 1, 1]
+      );
+  
+      // Respuesta exitosa
+      const message = { message: `Professor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
       console.error('Error inserting Profe:', error);
       res.status(500).send('Error inserting Profe.');
     } finally {
-      connection.end();
-      console.log("Connection closed.");
+      if (connection) {
+        connection.end();
+        console.log("Connection closed.");
+      }
     }
   });
+  
 
   
   app.put('/usuaris/:id', async (req, res) => {
@@ -623,13 +706,13 @@ const transporter = nodemailer.createTransport({
   //LogIn Alumnes
   app.post('/login', async (req, res) => {
     const {correu_alumne, contrasenya} = req.body; 
-
+    let connection;
     if (!correu_alumne || !contrasenya ) {
         return res.status(400).json({ message: 'Faltan datos necesarios' });
     }
 
     try {
-        const connection = await mysql.createConnection(dbConfig);
+        connection = await connectDB();
 
         const query = 'SELECT * FROM usuaris WHERE correu_alumne = ?'
           
@@ -663,6 +746,49 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+
+app.post('/loginProf', async (req, res) => {
+  const {correu_profe, contrasenya} = req.body; 
+  let connection;
+
+  if (!correu_profe || !contrasenya ) {
+      return res.status(400).json({ message: 'Faltan datos necesarios' });
+  }
+
+  try {
+    connection = await connectDB();
+
+      const query = 'SELECT * FROM usuaris WHERE correu_profe = ? AND tipus = "prof"'
+        
+
+      const [rows] = await connection.execute(query, [correu_profe]);
+
+      // Validar existencia del usuario
+      if (rows.length === 0) {
+          return res.status(404).json({ message: 'Usuario no encontrado' });
+      }
+
+      const user = rows[0];
+
+      const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+      if (!passwordMatch) {
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+      }
+
+      res.json({
+          message: 'Login exitoso',
+          user: {
+              email: user.correu_profe,
+              contrasenya: user.contrasenya,
+          },
+      });
+
+      connection.end();
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Error del servidor' });
+  }
+});
 
   //------------------------------------------ CRUD coneixements --------------------------------------
   app.get('/coneixements', async (req, res) => {
