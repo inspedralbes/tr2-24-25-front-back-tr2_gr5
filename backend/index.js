@@ -492,32 +492,32 @@ const transporter = nodemailer.createTransport({
     const { nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya } = req.body;
   
     // Validación de datos
-    if (!nom || !cognom || !correu_alumne|| !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
+    if (!nom || !cognom || !correu_alumne || !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
   
-    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
-      if (err) {
-        console.error("Error al encriptar contraseña:", err);
-        return;
-      }
-      console.log("Contraseña encriptada:", hashedPassword);
-    });
-
     let connection;
-
+  
     try {
+      // Encriptar la contraseña
+      const hashedPassword = await bcrypt.hash(contrasenya, 10);
+      console.log("Contraseña encriptada:", hashedPassword);
+  
+      // Conectar a la base de datos
       connection = await connectDB();
+  
+      // Ejecutar la consulta SQL
       const [rows] = await connection.query(
-        'INSERT INTO usuaris (nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, tipus, imatge_usuari_ruta) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, hashedPassword, 'alum', imatge_usuari_ruta]
+        `INSERT INTO usuaris (nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, contrasenya, tipus, imatge_usuari_ruta)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nom, cognom, correu_alumne, correu_tutor, correu_profe, id_curs, hashedPassword, 'alum', null]
       );
   
       // Enviar correo al tutor
       const mailOptions = {
         from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
         to: correu_tutor,
-        cc: 'a24bermirpre@inspedralbes.cat', cc: 'a21xavmarvel@inspedralbes.cat', cc: 'a22arnmaljoa@inspedralbes.cat', cc: 'a23edstorcev@inspedralbes.cat', cc: 'a21adrvazvaz@inspedralbes.cat',
+        cc: 'a24bermirpre@inspedralbes.cat, a21xavmarvel@inspedralbes.cat, a22arnmaljoa@inspedralbes.cat, a23edstorcev@inspedralbes.cat, a21adrvazvaz@inspedralbes.cat',
         subject: 'Registro de Alumno Menor de Edad en Supportly',
         html: `
           <h1>Bienvenido a Supportly </h1>
@@ -530,17 +530,19 @@ const transporter = nodemailer.createTransport({
   
       await transporter.sendMail(mailOptions);
   
-      let message = { message: `Usuari insertado con éxito. Correo enviado al tutor legal.` };
+      const message = { message: `Usuari insertado con éxito. Correo enviado al tutor legal.` };
       res.status(201).send(JSON.stringify(message));
-  
     } catch (error) {
       console.error('Error al insertar usuario o enviar correo:', error);
       res.status(500).send('Error al insertar usuario o enviar correo.');
     } finally {
-      if (connection) connection.end();
-      console.log("Connection closed.");
+      if (connection) {
+        connection.end();
+        console.log("Connection closed.");
+      }
     }
   });
+  
 
   //Registre usuaris MENTOR
   app.post('/mentors', async (req, res) => {
