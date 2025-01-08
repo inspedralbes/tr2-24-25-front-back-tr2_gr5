@@ -1,4 +1,5 @@
 const API_URL = import.meta.env.VITE_URL_BACK;
+import socket from '@/services/socket';
 
 
 //------------------- PETICIO ------------------

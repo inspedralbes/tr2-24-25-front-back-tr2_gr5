@@ -11,6 +11,8 @@ import { routes as autoroutes } from 'vue-router/auto-routes';
 import IniciarSesionPage from '@/components/IniciarSesionPage.vue';
 import PaginaPrincipal from '@/components/PaginaPrincipal.vue';
 import IncidenciesPage from '@/components/IncidenciesPage.vue';
+import UsuarisPage from '@/components/UsuarisPage.vue';
+import MentorsApplicationPage from '@/components/MentorsApplicationPage.vue';
 
 
 const routes = [
@@ -28,9 +30,19 @@ const routes = [
    
   },
   {
-    path: '/incidence',
+    path: '/incidences',
     name: 'Incidencia',
     component: IncidenciesPage,
+  },
+  {
+    path: '/users',
+    name: 'Users',
+    component: UsuarisPage,
+  },
+  {
+    path: '/applicationMent',
+    name: 'ApplicationMentors',
+    component: MentorsApplicationPage,
   }
 ];
 

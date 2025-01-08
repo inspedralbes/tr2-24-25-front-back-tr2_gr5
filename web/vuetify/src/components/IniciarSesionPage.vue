@@ -82,7 +82,9 @@
 import { ref } from 'vue';
 import { registerProfessor, loginProfessor} from '@/services/communicationmanager';
 import { useUserStore } from '@/stores/userStore'; // Importa el store
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 
 // Variables reactivas
 const email = ref('');
@@ -108,6 +110,7 @@ const login = async () => {
         contrasenya: response.user.contrasenya,
       });
       alert('Inicio de sesión exitoso');
+      router.push("/home");
     } else {
       alert('Datos incorrectos');
     }

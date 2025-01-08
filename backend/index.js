@@ -5,49 +5,117 @@ const cors = require('cors');
 const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
-const nodemailer = require('nodemailer')
+const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
 const bcrypt = require('bcrypt');
 
+
+var users = [];
+var peticions = [];
+
 (async () => {
-    await createDB();
+  await createDB();
 })();
 
-
+// Creación de la conexión a la base de datos
 const dataConnection = {
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS,
-    database: process.env.DB_NAME,
-    waitForConnections: true
-  };
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASS,
+  database: process.env.DB_NAME,
+  waitForConnections: true
+};
 
-  async function connectDB() {
-    try {
-      const connection = await mysql.createConnection(dataConnection);
-      console.log('Conexión a la base de datos exitosa.');
-      return connection;
-    } catch (error) {
-      console.error('Error connecting to the database: ', error);
-    }
+async function connectDB() {
+  try {
+    const connection = await mysql.createConnection(dataConnection);
+    console.log('Conexión a la base de datos exitosa.');
+    return connection;
+  } catch (error) {
+    console.error('Error connecting to the database: ', error);
   }
+}
 
 // -------------------- CREACION SERVER --------------------
 app.use(cors());
 app.use(express.json());
+
+// Crear servidor HTTP
 const server = createServer(app);
 
-//----------------- CRUD PETICION ---------------------------------------
+// Crear instancia de Socket.io
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ["Access-Control-Allow-Origin"],
+  }
+});
+
+// Conexión WebSocket
+io.on('connection', (socket) => {
+  console.log('Nuevo cliente conectado');
+  
+  // Aquí puedes agregar otros eventos como 'disconnect' si lo necesitas
+  socket.on('disconnect', () => {
+    console.log('Cliente desconectado');
+  });
+});
+
+
+async function sendPeticions() {
+  let connection;
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('SELECT * FROM peticio');
+    console.log("Peticions obtenidas:", rows);
+
+    // Emitir las peticiones a través del socket
+    peticions = rows;
+    console.log("Peticiones enviadas a través de socket");
+  } catch (error) {
+    console.error('Error al obtener y enviar peticions:', error);
+  } finally {
+      io.emit('peticions', peticions);
+      connection.end();
+      console.log("Conexión a la base de datos cerrada.");
+    }
+  }
+
+
+// Función para obtener datos de 'usuaris' y emitirlos
+async function sendUsuaris() {
+  let connection;
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('SELECT * FROM usuaris');
+    console.log("Usuaris obtenidos:", rows);
+    users = rows;
+    // Emitir los usuarios a través del socket
+    console.log("Usuarios enviados a través de socket");
+  } catch (error) {
+    console.error('Error al obtener y enviar usuaris:', error);
+  } finally {
+      io.emit('usuaris', users);
+      console.log("Usuaris obtenidos:", users);
+      connection.end();
+      console.log("Conexión a la base de datos cerrada.");
+    }
+  }
+
+
+// -------------------- CRUD PETICION --------------------
 app.get('/peticion', async (req, res) => {
-let connection;
-try {
-  connection = await connectDB();
-  const [rows] = await connection.query('SELECT * FROM peticio')
-  console.log("Peticions: ", rows);
+  let connection;
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('SELECT * FROM peticio');
+    console.log("Peticions: ", rows);
     res.json(rows);
   } catch (error) {
     console.error('Error fetching peticions:', error);
@@ -60,7 +128,7 @@ try {
 
 app.post('/peticion', async (req, res) => {
   const { id_usuari, id_categoria, nom_peticio, descripcio } = req.body;
-  if (!id_usuari || !id_categoria|| !nom_peticio|| !descripcio) {
+  if (!id_usuari || !id_categoria || !nom_peticio || !descripcio) {
     return res.status(400).send('Datos incompletos.');
   }
 
@@ -69,12 +137,16 @@ app.post('/peticion', async (req, res) => {
   try {
     connection = await connectDB();
     const [rows] = await connection.query('INSERT INTO peticio (id_usuari, id_categoria, nom_peticio, descripcio) VALUES (?, ?, ?, ?)', [id_usuari, id_categoria, nom_peticio, descripcio]);
-  
+
     console.log("Peticion: ", rows);
 
     if (rows.length == 0) {
       return res.status(404).send('Usuario no encontrado.');
     }
+
+    // Emitir evento WebSocket para informar a los clientes conectados
+    io.emit('nueva-peticion', rows[0]);
+    sendPeticions()
 
     res.status(201).json(rows[0]);
   } catch (error) {
@@ -86,69 +158,69 @@ app.post('/peticion', async (req, res) => {
   }
 });
 
-  app.put('/peticion/:id', async (req, res) => {
-    const { id } = req.params;
-    const cleanedId = id.replace(/[^0-9]/g, '');
-    const petitionId = parseInt(cleanedId, 10); // Convertir a entero
-    const { id_usuari, id_categoria, nom_peticio, descripcio} = req.body;
-    let connection;
-  
-    // Validación de campos
-    if (id_usuari == undefined|| id_categoria == undefined || nom_peticio == undefined || descripcio == undefined) {
-      return res.status(400).send('Datos incompletos.');
-    }
-  
-    try {
-      // Conectar a la base de datos
-      connection = await connectDB();
+app.put('/peticion/:id', async (req, res) => {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, '');
+  const petitionId = parseInt(cleanedId, 10); // Convertir a entero
+  const { id_usuari, id_categoria, nom_peticio, descripcio} = req.body;
+  let connection;
 
-      // Ejecutar consulta de actualización
-      const [result] = await connection.query(
-        'UPDATE peticio SET id_usuari = ?, id_categoria = ?, nom_peticio = ?, descripcio = ? WHERE id_peticio = ?',
-        [id_usuari, id_categoria, nom_peticio, descripcio, petitionId]
-      );
-  
-      if (result.affectedRows > 0) {
-        // sendProducts(); // Función de socket
-        let message = {
-          message: `Peticion con ID ${petitionId} actualizado con éxito.`
-        }
-        res.status(200).send(JSON.stringify(message));
-      } else {
-        res.status(404).send('Peticion no encontrada.');
-      }
-    } catch (error) {
-      console.error('Error al actualizar la Peticion:', error);
-      res.status(500).send('Error al actualizar la Peticion.');
-    } finally {
-      if (connection) connection.end();
-      console.log("Connection closed.");
+  if (id_usuari == undefined || id_categoria == undefined || nom_peticio == undefined || descripcio == undefined) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  try {
+    connection = await connectDB();
+
+    const [result] = await connection.query(
+      'UPDATE peticio SET id_usuari = ?, id_categoria = ?, nom_peticio = ?, descripcio = ? WHERE id_peticio = ?',
+      [id_usuari, id_categoria, nom_peticio, descripcio, petitionId]
+    );
+
+    if (result.affectedRows > 0) {
+      // Emitir evento WebSocket
+      io.emit('actualizar-peticion', { id_peticio: petitionId, message: 'Peticion actualizada' });
+
+      let message = {
+        message: `Peticion con ID ${petitionId} actualizado con éxito.`
+      };
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Peticion no encontrada.');
     }
+  } catch (error) {
+    console.error('Error al actualizar la Peticion:', error);
+    res.status(500).send('Error al actualizar la Peticion.');
+  } finally {
+    if (connection) connection.end();
+    console.log("Connection closed.");
+  }
 });
 
 app.delete('/peticion/:id', async (req, res) => {
-const {id} = req.params;
-const cleanedID = id.replace(/[^0-9]/g, '');
-const petitionId = parseInt(cleanedID, 10);
-let connection;
+  const {id} = req.params;
+  const cleanedID = id.replace(/[^0-9]/g, '');
+  const petitionId = parseInt(cleanedID, 10);
+  let connection;
 
-try {
-  connection = await connectDB();
-  const [rows] = await connection.query('DELETE FROM peticio WHERE id_peticio = ?', [petitionId])
-  
-  if (rows.affectedRows > 0) {
-    // sendProducts(); // Función de socket
+  try {
+    connection = await connectDB();
+    const [rows] = await connection.query('DELETE FROM peticio WHERE id_peticio = ?', [petitionId]);
+
+    if (rows.affectedRows > 0) {
+      // Emitir evento WebSocket
+      io.emit('eliminar-peticion', { id_peticio: petitionId, message: 'Peticion eliminada' });
+
       const message = { message: `Peticion con ID ${petitionId} eliminado con éxito.` };
       res.status(200).send(JSON.stringify(message));
-  } else {
-    res.status(404).send('Peticion no encontrado.');
+    } else {
+      res.status(404).send('Peticion no encontrada.');
+    }
+  } catch (error) {
+    res.status(500).send('Error al eliminar la peticion.');
+  } finally {
+    connection.end();
   }
-} catch (error) {
-  res.status(500).send('Error al eliminar la peticion.');
-} finally {
-  connection.end();
-}
-
 });
 //------------------------------------------------------------
 
@@ -393,6 +465,7 @@ app.get('/categoria', async (req, res) => {
       const [rows] = await connection.query('SELECT * FROM usuaris');
       console.log('Usuaris: ', rows);
       res.json(rows);
+      sendUsuaris();
     } catch (error) {
       console.error('Error fetching usuaris:', error);
       res.status(500).send('Error fetching usuaris.');
@@ -552,7 +625,7 @@ app.get('/mentoresPendientes', async (req, res) => {
 
     // Obtener los mentores pendientes de validación (solo nombre, apellido y curso)
     const [rows] = await connection.query(
-      'SELECT nom, cognom, id_curs FROM usuaris WHERE valid_tut_aula = 0 AND tipus = "ment"'
+      'SELECT id_usuari, nom, cognom, id_curs, correu_profe FROM usuaris WHERE valid_tut_aula = 0 AND tipus = "ment"'
     );
 
     if (rows.length === 0) {
@@ -697,6 +770,8 @@ app.get('/mentoresPendientes', async (req, res) => {
       console.error('Error deleting usuaris:', error);
       res.status(500).send('Error deleting usuaris.');
     } finally {
+
+      sendUsuaris()
       connection.end();
       console.log("Connection closed.");
     }
@@ -876,6 +951,30 @@ app.post('/loginProf', async (req, res) => {
       console.log("Connection closed.");
     }
   });
+
+
+
+    //------------------------------------------ CRUD valoracio --------------------------------------
+
+
+  app.get('/valoraciones', async (req, res) => {
+    let connection;
+    try {
+      connection = await connectDB();
+      const [rows] = await connection.query(`
+        SELECT * FROM valoracio
+      `);
+      console.log('Valoraciones: ', rows);
+      res.json(rows);
+    } catch (error) {
+      console.error('Error fetching valoraciones:', error);
+      res.status(500).send('Error fetching valoraciones.');
+    } finally {
+      connection.end();
+      console.log("Connection closed.");
+    }
+  });
+  
 
 server.listen(port, () => {
   console.log(`Example app listening at http://localhost:${port}`);
