@@ -546,33 +546,44 @@ const transporter = nodemailer.createTransport({
 
   //Registre usuaris MENTOR
   app.post('/mentors', async (req, res) => {
-    const { nom, cognom, correu_alumne, correu_profe, id_curs, contrasenya  } = req.body;
+    const { nom, cognom, correu_alumne, correu_profe, id_curs, contrasenya } = req.body;
+  
+    // Validación de datos
     if (!nom || !cognom || !correu_alumne || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+  
     let connection;
-
-    bcrypt.hash(contrasenya, 10, (err, hashedPassword) => {
-      if (err) {
-        console.error("Error al encriptar contraseña:", err);
-        return;
-      }
-      console.log("Contraseña encriptada:", hashedPassword);
-    });
-
+  
     try {
+      // Encriptar la contraseña
+      const hashedPassword = await bcrypt.hash(contrasenya, 10);
+      console.log("Contraseña encriptada:", hashedPassword);
+  
+      // Conectar a la base de datos
       connection = await connectDB();
-      const [rows] = await connection.query('INSERT INTO usuaris (nom, cognom, correu_alumne, correu_profe, hashedPassword, tipus, imatge_usuari_ruta, valid_tut_legal) VALUES (?, ?, ?, ?, ?, ?, ?, ?)', [nom, cognom, correu_alumne, correu_profe, hashedPassword, 'ment', imatge_usuari_ruta, 1]);
-      let message = { message: `Mentor insertado con éxito.` };
+  
+      // Ejecutar la consulta SQL
+      const [rows] = await connection.query(
+        `INSERT INTO usuaris 
+        (nom, cognom, correu_alumne, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        [nom, cognom, correu_alumne, correu_profe, hashedPassword, 'ment', null, 1]
+      );
+  
+      const message = { message: `Mentor insertado con éxito.` };
       res.status(201).send(JSON.stringify(message));
     } catch (error) {
-      console.error('Error inserting usuaris:', error);
-      res.status(500).send('Error inserting usuaris.');
+      console.error('Error al insertar mentor:', error);
+      res.status(500).send('Error al insertar mentor.');
     } finally {
-      connection.end();
-      console.log("Connection closed.");
+      if (connection) {
+        connection.end();
+        console.log("Connection closed.");
+      }
     }
   });
+  
 
 
 // Endpoint para actualizar la validación de un mentor
@@ -954,7 +965,23 @@ app.post('/loginProf', async (req, res) => {
     }
   });
 
+    //------------------------------------------ Curs --------------------------------------
 
+    app.get('/curs', async (req, res) => {
+      let connection;
+      try {
+        connection = await connectDB();
+        const [rows] = await connection.query('SELECT * FROM curs');
+        console.log("Curs: ", rows);
+        res.json(rows);
+      } catch (error) {
+        console.error('Error fetching peticions:', error);
+        res.status(500).send('Error fetching peticions.');
+      } finally {
+        connection.end();
+        console.log("Connection closed.");
+      }
+    });
 
     //------------------------------------------ CRUD valoracio --------------------------------------
 
