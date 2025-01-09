@@ -1,20 +1,30 @@
-/**
- * main.js
- *
- * Bootstraps Vuetify and other plugins then mounts the App`
- */
+// main.js
 
 // Plugins
-import { registerPlugins } from '@/plugins'
+import { registerPlugins } from '@/plugins';
 
 // Components
-import App from './App.vue'
+import App from './App.vue';
 
 // Composables
-import { createApp } from 'vue'
+import { createApp } from 'vue';
 
-const app = createApp(App)
+// Pinia
+import { createPinia } from 'pinia';
 
-registerPlugins(app)
+// Importar el plugin de persistencia
+import piniaPersist from 'pinia-plugin-persistedstate';
 
-app.mount('#app')
+// Crear la instancia de Pinia
+const pinia = createPinia();
+
+// Usar el plugin de persistencia con Pinia
+pinia.use(piniaPersist); // Esto habilita la persistencia para todas las tiendas
+
+const app = createApp(App);
+
+// Registrar los plugins y Pinia
+app.use(pinia);
+registerPlugins(app);
+
+app.mount('#app');
