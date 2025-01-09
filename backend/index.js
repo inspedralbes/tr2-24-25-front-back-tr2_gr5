@@ -793,18 +793,17 @@ app.get('/mentoresPendientes', async (req, res) => {
 
   //LogIn Alumnes
   app.post('/login', async (req, res) => {
-    const {correu_alumne, contrasenya} = req.body; 
+    const { correu_alumne, contrasenya } = req.body; 
     let connection;
-    if (!correu_alumne || !contrasenya ) {
+
+    if (!correu_alumne || !contrasenya) {
         return res.status(400).json({ message: 'Faltan datos necesarios' });
     }
 
     try {
         connection = await connectDB();
 
-        const query = 'SELECT * FROM usuaris WHERE correu_alumne = ?'
-          
-
+        const query = 'SELECT * FROM usuaris WHERE correu_alumne = ?';
         const [rows] = await connection.execute(query, [correu_alumne]);
 
         // Validar existencia del usuario
@@ -814,7 +813,20 @@ app.get('/mentoresPendientes', async (req, res) => {
 
         const user = rows[0];
 
-        const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+        let passwordMatch = false;
+
+        // Intentar validar la contraseña como hasheada
+        try {
+            passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+        } catch (err) {
+            console.warn('Error comparando contraseñas hasheadas:', err.message);
+        }
+
+        // Si la comparación hasheada falla, intentar comparación directa
+        if (!passwordMatch && user.contrasenya === contrasenya) {
+            passwordMatch = true;
+        }
+
         if (!passwordMatch) {
             return res.status(401).json({ message: 'Contraseña incorrecta' });
         }
@@ -823,7 +835,7 @@ app.get('/mentoresPendientes', async (req, res) => {
             message: 'Login exitoso',
             user: {
                 id: user.id,
-                email: user.contrasenya,
+                email: user.correu_alumne,
             },
         });
 
@@ -833,6 +845,7 @@ app.get('/mentoresPendientes', async (req, res) => {
         res.status(500).json({ message: 'Error del servidor' });
     }
 });
+
 
 
 app.post('/loginProf', async (req, res) => {
