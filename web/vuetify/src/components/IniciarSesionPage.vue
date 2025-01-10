@@ -143,6 +143,7 @@ const register = async () => {
         const result = await registerProfessor(payload);
         alert('Registro exitoso');
         console.log('Resultado:', result);
+        navigate(-1)
     } catch (error) {
         console.error('Error durante el registro:', error);
         alert('Error durante el registro: ' + error.message);
