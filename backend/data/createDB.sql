@@ -38,13 +38,14 @@ CREATE TABLE IF NOT EXISTS coneixements (
 CREATE TABLE IF NOT EXISTS peticio (
   id_peticio INT(11) NOT NULL AUTO_INCREMENT PRIMARY KEY,
   id_usuari INT(11) NOT NULL,
+  id_usuari_asignat INT(11) DEFAULT NULL,
   id_categoria INT(11) NOT NULL,
   nom_peticio VARCHAR(100) NOT NULL,
   descripcio TEXT NOT NULL,
-  activado BOOLEAN NOT NULL DEFAULT FALSE,
-  data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  activado BOOLEAN NOT NULL DEFAULT FALSE,  data TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (id_usuari) REFERENCES usuaris (id_usuari) ON DELETE CASCADE,
-  FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria) ON DELETE CASCADE
+  FOREIGN KEY (id_categoria) REFERENCES categoria (id_categoria) ON DELETE CASCADE,
+  FOREIGN KEY (id_usuari_asignat) REFERENCES usuaris (id_usuari) ON DELETE CASCADE
 );
 
 

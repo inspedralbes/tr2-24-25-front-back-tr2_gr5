@@ -58,17 +58,18 @@ INSERT INTO `coneixements` (`id_coneixement`, `id_usuari`, `id_categoria`) VALUE
 (3, 3, 4);
 
 -- Datos para la tabla `peticio`
-INSERT INTO `peticio` (`id_peticio`, `id_usuari`, `id_categoria`, `nom_peticio`, `descripcio`, `activado`, `data`) VALUES
-(1, 1, 1, 'Ayuda con álgebra', 'Necesito ayuda para resolver ecuaciones cuadráticas', 0, '2024-12-18 08:51:24'),
-(2, 1, 4, 'Problema con Word', 'No sé cómo usar tablas dinámicas en Word', 0, '2024-12-20 14:30:00'),
-(3, 1, 2, 'Error en mi código', 'No entiendo por qué mi bucle no funciona', 1, '2025-01-05 11:15:45'),
-(4, 1, 8, 'Seguridad en redes', 'Cómo proteger mi red de ataques', 0, '2024-12-25 16:00:00'),
-(5, 1, 6, 'Instalar Linux', 'Problemas para instalar Linux en mi máquina', 1, '2024-12-26 09:45:30'),
-(6, 1, 3, 'Montaje de hardware', 'Necesito ayuda con el montaje de componentes', 0, '2025-01-02 13:20:10'),
-(7, 1, 5, 'Etiquetas en HTML', 'Cómo usar correctamente etiquetas semánticas', 1, '2025-01-03 10:10:10'),
-(8, 1, 7, 'Sistemas en red', 'Configurar servidores en red local', 0, '2024-12-30 18:00:00'),
-(9, 1, 8, 'Seguridad avanzada', 'Implementar firewall personalizado', 1, '2024-12-29 08:30:00'),
-(10, 1, 2, 'Depuración de código', 'Problemas al depurar en mi entorno IDE', 0, '2025-01-04 15:00:00');
+INSERT INTO `peticio` (`id_peticio`, `id_usuari`, `id_usuari_asignat`, `id_categoria`, `nom_peticio`, `descripcio`, `activado`, `data`) VALUES
+(1, 1, NULL, 1, 'Ayuda con álgebra', 'Necesito ayuda para resolver ecuaciones cuadráticas', 0, '2024-12-18 08:51:24'),
+(2, 1, NULL, 4, 'Problema con Word', 'No sé cómo usar tablas dinámicas en Word', 0, '2024-12-20 14:30:00'),
+(3, 1, NULL, 2, 'Error en mi código', 'No entiendo por qué mi bucle no funciona', 1, '2025-01-05 11:15:45'),
+(4, 1, NULL, 8, 'Seguridad en redes', 'Cómo proteger mi red de ataques', 0, '2024-12-25 16:00:00'),
+(5, 1, NULL, 6, 'Instalar Linux', 'Problemas para instalar Linux en mi máquina', 1, '2024-12-26 09:45:30'),
+(6, 1, NULL, 3, 'Montaje de hardware', 'Necesito ayuda con el montaje de componentes', 0, '2025-01-02 13:20:10'),
+(7, 1, NULL, 5, 'Etiquetas en HTML', 'Cómo usar correctamente etiquetas semánticas', 1, '2025-01-03 10:10:10'),
+(8, 1, NULL, 7, 'Sistemas en red', 'Configurar servidores en red local', 0, '2024-12-30 18:00:00'),
+(9, 1, NULL, 8, 'Seguridad avanzada', 'Implementar firewall personalizado', 1, '2024-12-29 08:30:00'),
+(10, 1, NULL, 2, 'Depuración de código', 'Problemas al depurar en mi entorno IDE', 0, '2025-01-04 15:00:00');
+
 
 
 

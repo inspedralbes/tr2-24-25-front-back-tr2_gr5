@@ -126,6 +126,58 @@ app.get('/peticion', async (req, res) => {
   }
 });
 
+
+app.get('/peticionActivada', async (req, res) => {
+  let connection;
+  try {
+    connection = await connectDB();
+    // Consulta solo las peticiones activadas
+    const [rows] = await connection.query('SELECT * FROM peticio WHERE activado = true');
+    console.log("Peticiones activadas: ", rows);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener las peticiones activadas:', error);
+    res.status(500).send('Error al obtener las peticiones activadas.');
+  } finally {
+    if (connection) {
+      connection.end();
+      console.log("Conexión cerrada.");
+    }
+  }
+});
+
+
+app.get('/peticion/:id', async (req, res) => {
+  const { id } = req.params; // Extraer el ID de los parámetros de la URL
+  let connection;
+
+  try {
+    connection = await connectDB();
+    // Consulta para obtener la petición por su ID
+    const [rows] = await connection.query('SELECT * FROM peticio WHERE id_peticio = ?', [id]);
+    
+    if (rows.length === 0) {
+      // Si no se encuentra ninguna petición con el ID proporcionado
+      return res.status(404).send(`No se encontró ninguna petición con el ID: ${id}`);
+    }
+
+    console.log("Petición encontrada: ", rows[0]);
+    res.json(rows[0]); // Enviar la primera coincidencia como respuesta
+  } catch (error) {
+    console.error('Error al obtener la petición:', error);
+    res.status(500).send('Error al obtener la petición.');
+  } finally {
+    if (connection) {
+      connection.end();
+      console.log("Conexión cerrada.");
+    }
+  }
+});
+
+
+
+
+
 app.post('/peticion', async (req, res) => {
   const { id_usuari, id_categoria, nom_peticio, descripcio } = req.body;
   if (!id_usuari || !id_categoria || !nom_peticio || !descripcio) {
