@@ -618,9 +618,9 @@ const transporter = nodemailer.createTransport({
       // Ejecutar la consulta SQL
       const [rows] = await connection.query(
         `INSERT INTO usuaris 
-        (nom, cognom, correu_alumne, correu_profe, contrasenya, tipus, imatge_usuari_ruta, valid_tut_legal) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-        [nom, cognom, correu_alumne, correu_profe, hashedPassword, 'ment', null, 1]
+        (nom, cognom, correu_alumne, correu_profe, id_curs,contrasenya, tipus) 
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [nom, cognom, correu_alumne, correu_profe, id_curs, hashedPassword, 'ment',]
       );
   
       const message = { message: `Mentor insertado con éxito.` };
