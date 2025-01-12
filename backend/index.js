@@ -7,6 +7,9 @@ const { createServer } = require('http');
 const path = require('path');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
+require('dotenv').config({ path: path.join(__dirname, 'environment', '.env.exemple') });
+
+
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
@@ -976,7 +979,17 @@ app.post('/loginProf', async (req, res) => {
 
       const user = rows[0];
 
-      const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+      try {
+        passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+      } catch (err) {
+        console.warn('Error comparando contraseñas hasheadas:', err.message);
+      }
+
+      // Si la comparación hasheada falla, intentar comparación directa
+      if (!passwordMatch && user.contrasenya === contrasenya) {
+          passwordMatch = true;
+      }
+
       if (!passwordMatch) {
           return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
