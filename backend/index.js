@@ -11,7 +11,10 @@ const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
 const bcrypt = require('bcrypt');
-
+const mongoose = require('mongoose');
+const router = express.Router();
+const User = require('./models/User')
+const Message = require('./models/Message')
 
 var users = [];
 var peticions = [];
@@ -19,6 +22,70 @@ var peticions = [];
 (async () => {
   await createDB();
 })();
+
+// -------------------- CREACION SERVER MONGODB Y ROUTES CHAT --------------------
+
+// Conexión a MongoDB (asegurándonos de que la base de datos está conectada)
+mongoose.connect(process.env.MGDB_CONNECTION, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+})
+.then(() => console.log('Conectado a MongoDB'))
+.catch((error) => console.log('Error al conectar a MongoDB: ', error));
+
+
+// Usar middleware para parsear el cuerpo de las solicitudes (en formato JSON)
+app.use(express.json());
+
+// -------------------- RUTAS --------------------
+
+// Ruta para registrar usuarios
+router.post('/register', async (req, res) => {
+  try {
+      const { username } = req.body;
+      const user = new User({ username });
+      await user.save();
+      res.status(201).send(user);
+  } catch (error) {
+      console.error("Error registering user:", error); 
+      res.status(500).send({ error: 'Error registering user' });
+  }
+});
+
+// Ruta para enviar mensajes
+router.post('/send', async (req, res) => {
+  try {
+      const { sender, receiver, message } = req.body;
+      const newMessage = new Message({ sender, receiver, message });
+      await newMessage.save();
+
+      io.emit('mRecibido', newMessage);
+      res.status(201).send(newMessage);
+  } catch (error) {
+      res.status(500).send({ error: 'Error sending message' });
+  }
+});
+
+// Ruta para obtener mensajes entre dos usuarios
+router.get('/messages', async (req, res) => {
+  try {
+      const { user1, user2 } = req.query;
+      const messages = await Message.find({
+          $or: [
+              { sender: user1, receiver: user2 },
+              { sender: user2, receiver: user1 }
+          ]
+      }).sort({ timestamp: 1 });
+      res.status(200).send(messages);
+  } catch (error) {
+      res.status(500).send({ error: 'Error fetching messages' });
+  }
+});
+
+// Usar el enrutador en la aplicación
+app.use('/api', router);
+
+// -------------------- CREACIÓ CONEXIÓ --------------------
 
 // Creación de la conexión a la base de datos
 const dataConnection = {
@@ -695,7 +762,7 @@ app.put('/validarMentor/:mentorId', async (req, res) => {
   }
 
   let connection;
-  try {
+  try { 
     connection = await connectDB();
 
     // Actualizar el estado de validación del mentor
