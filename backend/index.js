@@ -249,6 +249,53 @@ app.put('/peticion/:id', async (req, res) => {
   }
 });
 
+
+app.put('/peticion/:id/asignada', async (req, res) => {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, ''); // Limpiar el parámetro id
+  const petitionId = parseInt(cleanedId, 10); // Convertir a entero
+  const { id_usuari_asignat } = req.body; // Obtener el id_usuari_asignat del cuerpo de la solicitud
+  let connection;
+
+  // Validar que se haya proporcionado id_usuari_asignat
+  if (id_usuari_asignat === undefined) {
+    return res.status(400).send('El campo id_usuari_asignat es requerido.');
+  }
+
+  try {
+    connection = await connectDB();
+
+    const [result] = await connection.query(
+      'UPDATE peticio SET id_usuari_asignat = ? WHERE id_peticio = ?',
+      [id_usuari_asignat, petitionId]
+    );
+
+    if (result.affectedRows > 0) {
+      // Emitir evento WebSocket si es necesario
+      io.emit('actualizar-peticion', {
+        id_peticio: petitionId,
+        id_usuari_asignat,
+        message: 'Usuario asignado actualizado',
+      });
+
+      const message = {
+        message: `Petición con ID ${petitionId} actualizada con éxito. Usuario asignado: ${id_usuari_asignat}`,
+      };
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Petición no encontrada.');
+    }
+  } catch (error) {
+    console.error('Error al actualizar el usuario asignado:', error);
+    res.status(500).send('Error al actualizar el usuario asignado.');
+  } finally {
+    if (connection) connection.end(); // Cerrar la conexión a la base de datos
+    console.log('Connection closed.');
+  }
+});
+
+
+
 app.delete('/peticion/:id', async (req, res) => {
   const {id} = req.params;
   const cleanedID = id.replace(/[^0-9]/g, '');
