@@ -717,6 +717,12 @@ app.put('/validarMentor/:mentorId', async (req, res) => {
       ? 'Mentor validado con éxito.'
       : 'Mentor rechazado, eliminado de la base de datos.';
 
+      io.emit('mentor-validat', {
+        mentorId,
+        validado,
+        message,
+      });
+
     res.status(200).send({ message });
   } catch (error) {
     console.error('Error al actualizar valid_tut_aula:', error);
