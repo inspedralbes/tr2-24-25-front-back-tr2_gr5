@@ -57,12 +57,12 @@
                 <v-icon>mdi-email</v-icon>
               </template>
             </v-text-field>
-            <v-text-field v-model="newPassword" label="Contraseña" type="password" required outlined>
+            <v-text-field v-model="newPassword" label="Contraseña" type="password" required outlined :error-messages="passwordError">
               <template #prepend>
                 <v-icon>mdi-lock</v-icon>
               </template>
             </v-text-field>
-            <v-text-field v-model="confirmPassword" label="Confirmar Contraseña" type="password" required outlined>
+            <v-text-field v-model="confirmPassword" label="Confirmar Contraseña" type="password" required outlined :error-messages="confirmPasswordError">
               <template #prepend>
                 <v-icon>mdi-lock</v-icon>
               </template>
@@ -75,14 +75,19 @@
         </v-card-text>
       </v-card>
     </v-window-item>
+
+    <!-- Snackbar para mostrar mensajes -->
+    <v-snackbar v-model="snackbar.visible" :color="snackbar.color" :timeout="snackbar.timeout" top>
+      {{ snackbar.text }}
+    </v-snackbar>
   </v-window>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { registerProfessor, loginProfessor} from '@/services/communicationmanager';
-import { useUserStore } from '@/stores/userStore'; // Importa el store
-import { useRouter } from "vue-router";
+import { ref, computed } from 'vue';
+import { registerProfessor, loginProfessor } from '@/services/communicationmanager';
+import { useUserStore } from '@/stores/userStore';
+import { useRouter } from 'vue-router';
 
 const router = useRouter();
 
@@ -97,57 +102,84 @@ const newEmail = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
+// Computed properties para validación
+const passwordError = computed(() => {
+  return newPassword.value && confirmPassword.value && newPassword.value !== confirmPassword.value
+    ? 'Las contraseñas no coinciden'
+    : '';
+});
+
+const confirmPasswordError = computed(() => {
+  return newPassword.value && confirmPassword.value && newPassword.value !== confirmPassword.value
+    ? 'Las contraseñas no coinciden'
+    : '';
+});
+
+// Estado del snackbar
+const snackbar = ref({
+  visible: false,
+  text: '',
+  color: '',
+  timeout: 3000,
+});
+
+const showSnackbar = (message, color) => {
+  snackbar.value = {
+    visible: true,
+    text: message,
+    color: color,
+    timeout: 3000,
+  };
+};
+
 // Métodos
 const login = async () => {
   try {
-    // Realizar la solicitud de login usando las credenciales
     const response = await loginProfessor(email.value, password.value);
 
     if (response.user) {
-      // Si la respuesta tiene los datos del usuario, los guardamos en el store
       userStore.login({
         email: response.user.email,
         contrasenya: response.user.contrasenya,
       });
-      alert('Inicio de sesión exitoso');
-      router.push("/home");
+      showSnackbar('Inicio de sesión exitoso', 'success');
+      router.push('/home');
     } else {
-      alert('Datos incorrectos');
+      showSnackbar('Datos incorrectos', 'error');
     }
   } catch (error) {
-    alert('Error al iniciar sesión: ' + error.message);
+    showSnackbar(`Error al iniciar sesión: ${error.message}`, 'error');
   }
 };
 
-
 const forgotPassword = () => {
-    alert('Recuperar contraseña');
+  showSnackbar('Recuperar contraseña', 'info');
 };
 
 const navigate = (step) => {
-    window.value += step;
-    console.log('Current window:', window.value);
+  window.value += step;
+  console.log('Current window:', window.value);
 };
 
 const register = async () => {
-    try {
-        const payload = {
-            nom: newName.value,
-            cognom: newSurname.value,
-            correu_profe: newEmail.value,
-            contrasenya: newPassword.value,
-        };
+  if (newPassword.value !== confirmPassword.value) {
+    return;
+  }
 
-        console.log('Payload para registrar:', payload);
+  try {
+    const payload = {
+      nom: newName.value,
+      cognom: newSurname.value,
+      correu_profe: newEmail.value,
+      contrasenya: newPassword.value,
+    };
 
-        const result = await registerProfessor(payload);
-        alert('Registro exitoso');
-        console.log('Resultado:', result);
-        navigate(-1)
-    } catch (error) {
-        console.error('Error durante el registro:', error);
-        alert('Error durante el registro: ' + error.message);
-    }
+    const result = await registerProfessor(payload);
+    showSnackbar('Registro exitoso', 'success');
+    navigate(-1);
+  } catch (error) {
+    showSnackbar(`Error durante el registro: ${error.message}`, 'error');
+  }
 };
 </script>
 
@@ -163,6 +195,10 @@ const register = async () => {
 .letra-gorda {
   font-weight: bold;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+.v-card {
+  margin-top: 10rem;
 }
 
 .background-image {

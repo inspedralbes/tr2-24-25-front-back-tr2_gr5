@@ -41,12 +41,15 @@
   <!-- Navigation Drawer -->
   <v-navigation-drawer v-model="fab" app temporary>
     <v-list>
-      <v-list-item @click="viewAccount">
+      <v-list-item>
         <v-list-item-icon>
           <v-icon>mdi-account</v-icon>
         </v-list-item-icon>
-        <v-list-item-title>Mi Cuenta</v-list-item-title>
+        <v-list-item-title class="user-email">{{ userStore.user?.email || "Inicia Sesión para ver el usuario" }}</v-list-item-title>
       </v-list-item>
+
+      <v-divider></v-divider>
+
       <v-list-item @click="handleAuthAction">
         <v-list-item-icon>
           <v-icon>{{ userStore.isAuthenticated ? 'mdi-logout' : 'mdi-login' }}</v-icon>
@@ -55,36 +58,62 @@
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
+
+  <!-- Snackbar para mensajes -->
+  <v-snackbar v-model="snackbar.show" :timeout="snackbar.timeout" top>
+    {{ snackbar.message }}
+    <template v-slot:action="{ attrs }">
+      <v-btn color="red" text v-bind="attrs" @click="snackbar.show = false">
+        Cerrar
+      </v-btn>
+    </template>
+  </v-snackbar>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { getMentoresPendientes } from "@/services/communicationmanager";
-import { useUserStore } from "@/stores/userStore"; // Importar la tienda de usuarios
-import { useRouter } from "vue-router"; // Importar el router para redirección
+import { useUserStore } from "@/stores/userStore";
+import { useRouter } from "vue-router";
+import { red } from "vuetify/util/colors";
 
 // Variables reactivas
-const fab = ref(false); // Controla el estado del Navigation Drawer
-const mentores = ref([]); // Lista de mentores pendientes
+const fab = ref(false);
+const mentores = ref([]);
+const snackbar = ref({
+  show: false,
+  message: "",
+  timeout: 3000,
+});
+const budget = ref(false);
 
-// Obtener la tienda de usuarios
 const userStore = useUserStore();
-const router = useRouter(); // Instancia de router para redirecciones
+const router = useRouter();
 
 // Filtrar mentores según el correo del profesor
 const filteredMentores = computed(() => {
   if (!userStore.user?.email) return [];
-  return mentores.value.filter(mentor => mentor.correu_profe === userStore.user.email);
+  return mentores.value.filter(
+    (mentor) => mentor.correu_profe === userStore.user.email
+  );
 });
 
 // Método para manejar la acción del botón (iniciar sesión o cerrar sesión)
 const handleAuthAction = () => {
   if (userStore.isAuthenticated) {
     userStore.logout();
-    alert("Cerrando sesión");
+    snackbar.value = {
+      show: true,
+      message: "Sesión Cerrada",
+      timeout: 5000,
+    };
   } else {
-    alert("Redirigiendo a iniciar sesión");
-    router.push("/"); // Redirige al componente de inicio de sesión
+    snackbar.value = {
+      show: true,
+      message: "Redirigiendo a iniciar sesión",
+      timeout: 3000,
+    };
+    router.push("/");
   }
 };
 
@@ -92,9 +121,32 @@ const handleAuthAction = () => {
 const fetchMentoresPendientes = async () => {
   try {
     mentores.value = await getMentoresPendientes();
+    if (filteredMentores.value.length === 0) {
+      snackbar.value = {
+        show: true,
+        message: "No hay solicitudes de Mentores disponibles",
+        timeout: 5000,
+      };
+    }
   } catch (error) {
-    console.error("Error al cargar los mentores pendientes:", error);
+    snackbar.value = {
+      show: true,
+      message: "Error al cargar los mentores pendientes",
+      timeout: 3000,
+    };
   }
+};
+
+// Manejar el estado de budget
+const toggleBudget = () => {
+  if (!budget.value) {
+    snackbar.value = {
+      show: true,
+      message: "No hay notificaciones disponibles",
+      timeout: 3000,
+    };
+  }
+  budget.value = !budget.value;
 };
 
 // Montar el componente
@@ -104,17 +156,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* Asegura que el contenedor tenga una posición relativa */
 .badge-container {
   position: relative;
   display: inline-block;
 }
 
-/* Posiciona el badge en la esquina superior derecha */
 .notification-badge {
   position: absolute;
   top: 9px;
   right: 6px;
   z-index: 1;
+  margin-bottom: 5rem;
+}
+
+.user-email {
+  font-weight: bold;
+  font-size: 14px;
+  color: #4caf50;
 }
 </style>
