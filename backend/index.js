@@ -1011,25 +1011,25 @@ app.put('/validarMentor/:mentorId', async (req, res) => {
   }
 });
 
-// Endpoint para obtener mentores pendientes de validación
-app.get('/mentoresPendientes', async (req, res) => {
+// Endpoint para obtener ALUMNOS pendientes de validación
+app.get('/alumnosPendientes', async (req, res) => {
   let connection;
   try {
     connection = await connectDB();
 
     // Obtener los mentores pendientes de validación (solo nombre, apellido y curso)
     const [rows] = await connection.query(
-      'SELECT id_usuari, nom, cognom, id_curs, correu_profe FROM usuaris WHERE valid_tut_aula = 0 AND tipus = "ment"'
+      'SELECT id_usuari, nom, cognom, id_curs, correu_profe FROM usuaris WHERE valid_tut_aula = 0'
     );
 
     if (rows.length === 0) {
-      return res.status(404).send('No hay mentores pendientes de validación.');
+      return res.status(404).send('No hay Alumnos pendientes de validación.');
     }
 
     res.status(200).send(rows); // Mandamos la lista de mentores pendientes con solo los campos requeridos
   } catch (error) {
-    console.error('Error al obtener mentores pendientes:', error);
-    res.status(500).send('Error al obtener mentores pendientes.');
+    console.error('Error al obtener Alumnos pendientes:', error);
+    res.status(500).send('Error al obtener Alumnes pendientes.');
   } finally {
     if (connection) {
       connection.end();
