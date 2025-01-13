@@ -7,6 +7,9 @@ const { createServer } = require('http');
 const path = require('path');
 const nodemailer = require('nodemailer');
 require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
+require('dotenv').config({ path: path.join(__dirname, 'environment', '.env.exemple') });
+
+
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
 const port = process.env.PORT;
@@ -248,6 +251,53 @@ app.put('/peticion/:id', async (req, res) => {
     console.log("Connection closed.");
   }
 });
+
+
+app.put('/peticion/:id/asignada', async (req, res) => {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, ''); // Limpiar el parámetro id
+  const petitionId = parseInt(cleanedId, 10); // Convertir a entero
+  const { id_usuari_asignat } = req.body; // Obtener el id_usuari_asignat del cuerpo de la solicitud
+  let connection;
+
+  // Validar que se haya proporcionado id_usuari_asignat
+  if (id_usuari_asignat === undefined) {
+    return res.status(400).send('El campo id_usuari_asignat es requerido.');
+  }
+
+  try {
+    connection = await connectDB();
+
+    const [result] = await connection.query(
+      'UPDATE peticio SET id_usuari_asignat = ? WHERE id_peticio = ?',
+      [id_usuari_asignat, petitionId]
+    );
+
+    if (result.affectedRows > 0) {
+      // Emitir evento WebSocket si es necesario
+      io.emit('actualizar-peticion', {
+        id_peticio: petitionId,
+        id_usuari_asignat,
+        message: 'Usuario asignado actualizado',
+      });
+
+      const message = {
+        message: `Petición con ID ${petitionId} actualizada con éxito. Usuario asignado: ${id_usuari_asignat}`,
+      };
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Petición no encontrada.');
+    }
+  } catch (error) {
+    console.error('Error al actualizar el usuario asignado:', error);
+    res.status(500).send('Error al actualizar el usuario asignado.');
+  } finally {
+    if (connection) connection.end(); // Cerrar la conexión a la base de datos
+    console.log('Connection closed.');
+  }
+});
+
+
 
 app.delete('/peticion/:id', async (req, res) => {
   const {id} = req.params;
@@ -572,7 +622,11 @@ const transporter = nodemailer.createTransport({
     if (!nom || !cognom || !correu_alumne || !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
-  
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe || correu_alumne || correu_tutor)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
     let connection;
   
     try {
@@ -619,6 +673,266 @@ const transporter = nodemailer.createTransport({
       }
     }
   });
+
+
+  
+   // He Olvidado Mi Contraseña - ALUMNOS (APP ANDROID)
+    app.post('/peticioRestaurarContraAlumnes', async (req, res) => {
+      const { correu_alumne } = req.body;
+
+      if (!correu_alumne) {
+        return res.status(400).send('Escribe tu Correo Electrónico');
+      }
+
+      // Validar formato de correo
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(correu_alumne)) {
+        return res.status(400).send('Formato de correo no válido.');
+      }
+
+      let connection;
+
+      try {
+        // Conectar a la base de datos
+        connection = await connectDB();
+
+        // Comprobar si el correo existe en la base de datos
+        const [rows] = await connection.query(
+          'SELECT * FROM alumnes WHERE correu = ?',
+          [correu_alumne]
+        );
+
+        if (rows.length === 0) {
+          return res.status(404).send('Correo no registrado en la Aplicación, Registrate.');
+        }
+
+        // Enviar correo para restaurar contraseña
+        const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_alumne)}`;
+        const mailOptions = {
+          from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
+          to: correu_alumne,
+          cc: 'a24bermirpre@inspedralbes.cat, a21xavmarvel@inspedralbes.cat, a22arnmaljoa@inspedralbes.cat, a23edstorcev@inspedralbes.cat, a21adrvazvaz@inspedralbes.cat',
+          subject: 'Restaurar Contraseña - Supportly App',
+          html: `
+            <h1>Restaurar Contraseña</h1>
+            <p>Hemos recibido una solicitud para restaurar tu contraseña. Si no realizaste esta solicitud, puedes ignorar este correo.</p>
+            <p>Para restaurar tu contraseña, haz clic en el siguiente enlace:</p>
+            <a href="${resetLink}">Restaurar Contraseña</a>
+            <p>Gracias,</p>
+            <p>Equipo de Supportly</p>
+          `
+        };
+
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).send('Correo de restauración enviado con éxito.');
+      } catch (error) {
+        console.error('Error al procesar la solicitud:', error);
+        res.status(500).send('Error al procesar la solicitud.');
+      } finally {
+        if (connection) {
+          connection.release();
+          console.log('Conexión a la base de datos cerrada.');
+        }
+      }
+    });
+
+
+
+
+   // He Olvidado Mi Contraseña - PROFESORES (ADMINISTRACIÓN VUE)
+   app.post('/peticioRestaurarContraProfes', async (req, res) => {
+    const { correu_profe } = req.body;
+
+    if (!correu_profe) {
+      return res.status(400).send('Escribe tu Correo Electrónico');
+    }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
+
+    let connection;
+
+    try {
+      // Conectar a la base de datos
+      connection = await connectDB();
+
+      // Comprobar si el correo existe en la base de datos
+      const [rows] = await connection.query(
+        'SELECT * FROM alumnes WHERE correu = ?',
+        [correu_profe]
+      );
+
+      if (rows.length === 0) {
+        return res.status(404).send('Correo no registrado en la Aplicación, Registrate.');
+      }
+
+      // Enviar correo para restaurar contraseña
+      const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_profe)}`;
+      const mailOptions = {
+        from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
+        to: correu_alumne,
+        cc: 'a24bermirpre@inspedralbes.cat, a21xavmarvel@inspedralbes.cat, a22arnmaljoa@inspedralbes.cat, a23edstorcev@inspedralbes.cat, a21adrvazvaz@inspedralbes.cat',
+        subject: 'Restaurar Contraseña - Supportly App',
+        html: `
+          <h1>Restaurar Contraseña</h1>
+          <p>Hemos recibido una solicitud para restaurar tu contraseña. Si no realizaste esta solicitud, puedes ignorar este correo.</p>
+          <p>Para restaurar tu contraseña, haz clic en el siguiente enlace:</p>
+          <a href="${resetLink}">Restaurar Contraseña</a>
+          <p>Gracias,</p>
+          <p>Equipo de Supportly</p>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+
+      res.status(200).send('Correo de restauración enviado con éxito.');
+    } catch (error) {
+      console.error('Error al procesar la solicitud:', error);
+      res.status(500).send('Error al procesar la solicitud.');
+    } finally {
+      if (connection) {
+        connection.release();
+        console.log('Conexión a la base de datos cerrada.');
+      }
+    }
+  });
+
+
+
+// Establecer nueva contraseña   ALUMNO   (ANDORID APP)
+app.post('/restaurarContraAlumn', async (req, res) => {
+  const { correu_alumne, nova_contrasenya, confirmar_contrasenya } = req.body;
+
+  // Validación de datos
+  if (!correu_alumne || !nova_contrasenya || !confirmar_contrasenya) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  // Verificar que las contraseñas coincidan
+  if (nova_contrasenya !== confirmar_contrasenya) {
+    return res.status(400).send('Las contraseñas no coinciden.');
+  }
+
+  // Validar longitud y seguridad de la contraseña
+  if (nova_contrasenya.length < 8) {
+    return res.status(400).send('La contraseña debe tener al menos 8 caracteres.');
+  }
+
+  // Validar formato de correo
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(correu_alumne)) {
+    return res.status(400).send('Formato de correo no válido.');
+  }
+
+
+  let connection;
+
+  try {
+    // Conectar a la base de datos
+    connection = await connectDB();
+
+    // Verificar si el correo está registrado
+    const [rows] = await connection.query(
+      'SELECT * FROM alumnes WHERE correu = ?',
+      [correu_alumne]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send('Correo no registrado.');
+    }
+
+    // Encriptar la nueva contraseña
+    const hashedPassword = await bcrypt.hash(nova_contrasenya, 10);
+
+    // Actualizar la contraseña en la base de datos
+    await connection.query(
+      'UPDATE alumnes SET contrasenya = ? WHERE correu = ?',
+      [hashedPassword, correu_alumne]
+    );
+
+    res.status(200).send('Contraseña actualizada con éxito.');
+  } catch (error) {
+    console.error('Error al actualizar la contraseña:', error);
+    res.status(500).send('Error al actualizar la contraseña.');
+  } finally {
+    if (connection) {
+      connection.release();
+      console.log('Conexión a la base de datos cerrada.');
+    }
+  }
+});
+
+
+
+// Establecer nueva contraseña   PROFESOR   (ADMINISTRACIÓN VUE)
+app.post('/restaurarContraProf', async (req, res) => {
+  const { correu_profe, nova_contrasenya, confirmar_contrasenya } = req.body;
+
+  // Validación de datos
+  if (!correu_profe || !nova_contrasenya || !confirmar_contrasenya) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  // Verificar que las contraseñas coincidan
+  if (nova_contrasenya !== confirmar_contrasenya) {
+    return res.status(400).send('Las contraseñas no coinciden.');
+  }
+
+  // Validar longitud y seguridad de la contraseña
+  if (nova_contrasenya.length < 8 || confirmar_contrasenya.length < 8) {
+    return res.status(400).send('La contraseña debe tener al menos 8 caracteres.');
+  }
+
+  // Validar formato de correo
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(correu_profe)) {
+    return res.status(400).send('Formato de correo no válido.');
+  }
+
+
+  let connection;
+
+  try {
+    // Conectar a la base de datos
+    connection = await connectDB();
+
+    // Verificar si el correo está registrado
+    const [rows] = await connection.query(
+      'SELECT * FROM alumnes WHERE correu = ?',
+      [correu_alumne]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).send('Correo no registrado.');
+    }
+
+    // Encriptar la nueva contraseña
+    const hashedPassword = await bcrypt.hash(nova_contrasenya, 10);
+
+    // Actualizar la contraseña en bbdd
+    await connection.query(
+      'UPDATE alumnes SET contrasenya = ? WHERE correu = ?',
+      [hashedPassword, correu_alumne]
+    );
+
+    res.status(200).send('Contraseña actualizada con éxito.');
+  } catch (error) {
+    console.error('Error al actualizar la contraseña:', error);
+    res.status(500).send('Error al actualizar la contraseña.');
+  } finally {
+    if (connection) {
+      connection.release();
+      console.log('Conexión a la base de datos cerrada.');
+    }
+  }
+});
+
+
+
   
 
   //Registre usuaris MENTOR
@@ -629,6 +943,15 @@ const transporter = nodemailer.createTransport({
     if (!nom || !cognom || !correu_alumne || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe || correu_alumne)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
+
+
+    
   
     let connection;
   
@@ -695,6 +1018,12 @@ app.put('/validarMentor/:mentorId', async (req, res) => {
       ? 'Mentor validado con éxito.'
       : 'Mentor rechazado, eliminado de la base de datos.';
 
+      io.emit('mentor-validat', {
+        mentorId,
+        validado,
+        message,
+      });
+
     res.status(200).send({ message });
   } catch (error) {
     console.error('Error al actualizar valid_tut_aula:', error);
@@ -707,25 +1036,25 @@ app.put('/validarMentor/:mentorId', async (req, res) => {
   }
 });
 
-// Endpoint para obtener mentores pendientes de validación
-app.get('/mentoresPendientes', async (req, res) => {
+// Endpoint para obtener ALUMNOS pendientes de validación
+app.get('/alumnosPendientes', async (req, res) => {
   let connection;
   try {
     connection = await connectDB();
 
     // Obtener los mentores pendientes de validación (solo nombre, apellido y curso)
     const [rows] = await connection.query(
-      'SELECT id_usuari, nom, cognom, id_curs, correu_profe FROM usuaris WHERE valid_tut_aula = 0 AND tipus = "ment"'
+      'SELECT id_usuari, nom, cognom, id_curs, correu_profe FROM usuaris WHERE valid_tut_aula = 0'
     );
 
     if (rows.length === 0) {
-      return res.status(404).send('No hay mentores pendientes de validación.');
+      return res.status(404).send('No hay Alumnos pendientes de validación.');
     }
 
     res.status(200).send(rows); // Mandamos la lista de mentores pendientes con solo los campos requeridos
   } catch (error) {
-    console.error('Error al obtener mentores pendientes:', error);
-    res.status(500).send('Error al obtener mentores pendientes.');
+    console.error('Error al obtener Alumnos pendientes:', error);
+    res.status(500).send('Error al obtener Alumnes pendientes.');
   } finally {
     if (connection) {
       connection.end();
@@ -772,6 +1101,13 @@ app.get('/mentoresPendientes', async (req, res) => {
     if (!nom || !cognom || !correu_profe || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
+
   
     let connection;
   
@@ -949,7 +1285,17 @@ app.post('/loginProf', async (req, res) => {
 
       const user = rows[0];
 
-      const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+      try {
+        passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
+      } catch (err) {
+        console.warn('Error comparando contraseñas hasheadas:', err.message);
+      }
+
+      // Si la comparación hasheada falla, intentar comparación directa
+      if (!passwordMatch && user.contrasenya === contrasenya) {
+          passwordMatch = true;
+      }
+
       if (!passwordMatch) {
           return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
