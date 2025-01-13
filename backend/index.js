@@ -698,7 +698,7 @@ const transporter = nodemailer.createTransport({
 
         // Comprobar si el correo existe en la base de datos
         const [rows] = await connection.query(
-          'SELECT * FROM alumnes WHERE correu = ?',
+          'SELECT * FROM usuaris WHERE correu_alumne = ?',
           [correu_alumne]
         );
 
@@ -731,7 +731,7 @@ const transporter = nodemailer.createTransport({
         res.status(500).send('Error al procesar la solicitud.');
       } finally {
         if (connection) {
-          connection.release();
+          connection.end();
           console.log('Conexión a la base de datos cerrada.');
         }
       }
@@ -762,7 +762,7 @@ const transporter = nodemailer.createTransport({
 
       // Comprobar si el correo existe en la base de datos
       const [rows] = await connection.query(
-        'SELECT * FROM alumnes WHERE correu = ?',
+        'SELECT * FROM usuaris WHERE correu_profe = ?',
         [correu_profe]
       );
 
@@ -774,7 +774,7 @@ const transporter = nodemailer.createTransport({
       const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_profe)}`;
       const mailOptions = {
         from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
-        to: correu_alumne,
+        to: correu_profe,
         cc: 'a24bermirpre@inspedralbes.cat, a21xavmarvel@inspedralbes.cat, a22arnmaljoa@inspedralbes.cat, a23edstorcev@inspedralbes.cat, a21adrvazvaz@inspedralbes.cat',
         subject: 'Restaurar Contraseña - Supportly App',
         html: `
@@ -795,7 +795,7 @@ const transporter = nodemailer.createTransport({
       res.status(500).send('Error al procesar la solicitud.');
     } finally {
       if (connection) {
-        connection.release();
+        connection.end();
         console.log('Conexión a la base de datos cerrada.');
       }
     }
