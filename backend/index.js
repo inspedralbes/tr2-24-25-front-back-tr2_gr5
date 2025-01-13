@@ -648,7 +648,7 @@ const transporter = nodemailer.createTransport({
 
   
    // He Olvidado Mi Contraseña - ALUMNOS (APP ANDROID)
-    app.post('/PeticioRestaurarContraAlumnes', async (req, res) => {
+    app.post('/peticioRestaurarContraAlumnes', async (req, res) => {
       const { correu_alumne } = req.body;
 
       if (!correu_alumne) {
@@ -712,7 +712,7 @@ const transporter = nodemailer.createTransport({
 
 
    // He Olvidado Mi Contraseña - PROFESORES (ADMINISTRACIÓN VUE)
-   app.post('/PeticioRestaurarContraAlumnes', async (req, res) => {
+   app.post('/peticioRestaurarContraProfes', async (req, res) => {
     const { correu_profe } = req.body;
 
     if (!correu_profe) {
@@ -775,7 +775,7 @@ const transporter = nodemailer.createTransport({
 
 
 // Establecer nueva contraseña   ALUMNO   (ANDORID APP)
-app.post('/RestaurarContraAlumn', async (req, res) => {
+app.post('/restaurarContraAlumn', async (req, res) => {
   const { correu_alumne, nova_contrasenya, confirmar_contrasenya } = req.body;
 
   // Validación de datos
@@ -833,7 +833,7 @@ app.post('/RestaurarContraAlumn', async (req, res) => {
 
 
 // Establecer nueva contraseña   PROFESOR   (ADMINISTRACIÓN VUE)
-app.post('/RestaurarContraProf', async (req, res) => {
+app.post('/restaurarContraProf', async (req, res) => {
   const { correu_profe, nova_contrasenya, confirmar_contrasenya } = req.body;
 
   // Validación de datos
