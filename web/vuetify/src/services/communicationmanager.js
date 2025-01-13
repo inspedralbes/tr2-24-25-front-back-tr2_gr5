@@ -207,3 +207,34 @@ export async function validarMentor(mentorId, validado) {
       throw error;
   }
 }
+
+
+//-----------------REESTABLECER CONTRASEÑA ADMINISTRACION VUE-----------------
+
+export async function restablecerCOntrProf(correu_profe) {
+  const url = `${API_URL}peticioRestaurarContraProfes`;
+  console.log('Sending request to restablish your password:', url);
+
+  try {
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ validado }),  // true (1) para aprobar, false (0) para rechazar
+      });
+
+      if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Error en el backend:', errorText);
+          throw new Error(errorText || 'Error al modificar la validación del mentor');
+      }
+
+      const result = await response.json();
+      console.log('Resultado de la validación:', result);
+      return result;
+  } catch (error) {
+      console.error('Error al Gestionar la peticion de restablecer la contraseña:', error);
+      throw error;
+  }
+}

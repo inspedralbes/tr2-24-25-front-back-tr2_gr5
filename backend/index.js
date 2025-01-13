@@ -1333,9 +1333,7 @@ app.post('/loginProf', async (req, res) => {
     const { id_usuari, id_categoria } = req.body;
     if (!id_usuari || !id_categoria) {
       return res.status(400).send('Datos incompletos.');
-    }
-    let connection;
-    try {
+    }Contraseña
       connection = await connectDB();
       const [result] = await connection.query('UPDATE coneixements SET id_usuari = ?, id_categoria = ? WHERE id_coneixement = ?', [id_usuari, id_categoria, coneixementsId]);
       if (result.affectedRows > 0) {
