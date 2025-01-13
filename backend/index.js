@@ -527,6 +527,31 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+
+  app.get('/usuaris/:tipus', async (req, res) => {
+    const { tipus } = req.params;
+    const validTypes = ['ment', 'alum', 'prof']; // Tipos válidos
+    if (!validTypes.includes(tipus)) {
+        return res.status(400).send('Tipo de usuario no válido.');
+    }
+
+    let connection;
+    try {
+        connection = await connectDB();
+        const [rows] = await connection.query('SELECT * FROM usuaris WHERE tipus = ?', [tipus]);
+        console.log(`Usuarios (${tipus}): `, rows);
+        res.json(rows);
+        sendUsuaris(); // Asegúrate de que sendUsuaris tenga sentido en este contexto
+    } catch (error) {
+        console.error(`Error fetching usuarios (${tipus}):`, error);
+        res.status(500).send('Error fetching usuarios.');
+    } finally {
+        connection.end();
+        console.log('Connection closed.');
+    }
+});
+  
+
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
 const transporter = nodemailer.createTransport({
@@ -888,6 +913,7 @@ app.get('/mentoresPendientes', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.correu_alumne,
+                tipus: user.tipus
             },
         });
 
