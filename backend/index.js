@@ -26,10 +26,7 @@ var peticions = [];
 // -------------------- CREACION SERVER MONGODB Y ROUTES CHAT --------------------
 
 // Conexión a MongoDB (asegurándonos de que la base de datos está conectada)
-mongoose.connect(process.env.MGDB_CONNECTION, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MGDB_CONNECTION)
 .then(() => console.log('Conectado a MongoDB'))
 .catch((error) => console.log('Error al conectar a MongoDB: ', error));
 
@@ -1044,7 +1041,7 @@ app.post('/loginProf', async (req, res) => {
       const user = rows[0];
 
       const passwordMatch = await bcrypt.compare(contrasenya, user.contrasenya);
-      if (!passwordMatch) {
+        if (!passwordMatch) {
           return res.status(401).json({ message: 'Contraseña incorrecta' });
       }
 
