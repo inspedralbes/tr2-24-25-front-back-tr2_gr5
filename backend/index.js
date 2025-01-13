@@ -597,7 +597,11 @@ const transporter = nodemailer.createTransport({
     if (!nom || !cognom || !correu_alumne || !correu_tutor || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
-  
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe || correu_alumne || correu_tutor)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
     let connection;
   
     try {
@@ -793,6 +797,13 @@ app.post('/restaurarContraAlumn', async (req, res) => {
     return res.status(400).send('La contraseña debe tener al menos 8 caracteres.');
   }
 
+  // Validar formato de correo
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(correu_alumne)) {
+    return res.status(400).send('Formato de correo no válido.');
+  }
+
+
   let connection;
 
   try {
@@ -851,6 +862,13 @@ app.post('/restaurarContraProf', async (req, res) => {
     return res.status(400).send('La contraseña debe tener al menos 8 caracteres.');
   }
 
+  // Validar formato de correo
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(correu_profe)) {
+    return res.status(400).send('Formato de correo no válido.');
+  }
+
+
   let connection;
 
   try {
@@ -900,6 +918,15 @@ app.post('/restaurarContraProf', async (req, res) => {
     if (!nom || !cognom || !correu_alumne || !correu_profe || !id_curs || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe || correu_alumne)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
+
+
+    
   
     let connection;
   
@@ -1049,6 +1076,13 @@ app.get('/mentoresPendientes', async (req, res) => {
     if (!nom || !cognom || !correu_profe || !contrasenya) {
       return res.status(400).send('Datos incompletos.');
     }
+
+    // Validar formato de correo
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(correu_profe)) {
+      return res.status(400).send('Formato de correo no válido.');
+    }
+
   
     let connection;
   
