@@ -774,11 +774,6 @@ const transporter = nodemailer.createTransport({
 
 
 
-
-  const bcrypt = require('bcrypt');
-
-
-
 // Establecer nueva contraseña   ALUMNO   (ANDORID APP)
 app.post('/RestaurarContraAlumn', async (req, res) => {
   const { correu_alumne, nova_contrasenya, confirmar_contrasenya } = req.body;
