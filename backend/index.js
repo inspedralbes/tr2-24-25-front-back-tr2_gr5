@@ -638,6 +638,26 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+  //Get d'usuaris pel nom
+  app.get('/usuaris/:nom', async (req, res) => {
+    const { nom } = req.params; 
+    let connection;
+    try {
+        connection = await connectDB();
+        const query = 'SELECT * FROM usuaris WHERE nom = ?';
+        const [rows] = await connection.query(query, [nom]);
+
+        console.log('Usuari trobat: ', rows[0]);
+        res.json(rows[0]); 
+    } catch (error) {
+        console.error('Error fetching usuari:', error);
+        res.status(500).send('Error fetching usuari.');
+    } finally {
+        connection.end();
+        console.log("Connection closed.");
+    }
+});
+
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
 const transporter = nodemailer.createTransport({
