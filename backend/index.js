@@ -747,8 +747,8 @@ const transporter = nodemailer.createTransport({
         return res.status(404).send('Correo no registrado en la Aplicación, Registrate.');
       }
 
-      // Enviar correo para restaurar contraseña
-      const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_profe)}`;  //------------ restoredOassword.vu es la pagina que va a ver el usario al darle a este enlace
+      const resetLink = `${process.env.URL_BACK}/resetPassword`;
+      //------------ restoredOassword.vu es la pagina que va a ver el usario al darle a este enlace
       const mailOptions = {
         from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
         to: correu_profe,
@@ -845,31 +845,29 @@ app.post('/restaurarContraAlumn', async (req, res) => {
 
 
 
-// Establecer nueva contraseña   PROFESOR   (ADMINISTRACIÓN VUE)
 app.post('/restaurarContraProf', async (req, res) => {
   const { correu_profe, nova_contrasenya, confirmar_contrasenya } = req.body;
 
   // Validación de datos
   if (!correu_profe || !nova_contrasenya || !confirmar_contrasenya) {
-    return res.status(400).send('Datos incompletos.');
+    return res.status(400).json({ message: 'Datos incompletos.' });
   }
 
   // Verificar que las contraseñas coincidan
   if (nova_contrasenya !== confirmar_contrasenya) {
-    return res.status(400).send('Las contraseñas no coinciden.');
+    return res.status(400).json({ message: 'Las contraseñas no coinciden.' });
   }
 
   // Validar longitud y seguridad de la contraseña
-  if (nova_contrasenya.length < 8 || confirmar_contrasenya.length < 8) {
-    return res.status(400).send('La contraseña debe tener al menos 8 caracteres.');
+  if (nova_contrasenya.length < 8) {
+    return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres.' });
   }
 
   // Validar formato de correo
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(correu_profe)) {
-    return res.status(400).send('Formato de correo no válido.');
+    return res.status(400).json({ message: 'Formato de correo no válido.' });
   }
-
 
   let connection;
 
@@ -884,7 +882,7 @@ app.post('/restaurarContraProf', async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).send('Correo no registrado.');
+      return res.status(404).json({ message: 'Correo no registrado.' });
     }
 
     // Encriptar la nueva contraseña
@@ -896,10 +894,10 @@ app.post('/restaurarContraProf', async (req, res) => {
       [hashedPassword, correu_profe]
     );
 
-    res.status(200).send('Contraseña actualizada con éxito.');
+    res.status(200).json({ message: 'Contraseña actualizada con éxito.' });
   } catch (error) {
     console.error('Error al actualizar la contraseña:', error);
-    res.status(500).send('Error al actualizar la contraseña.');
+    res.status(500).json({ message: 'Error al actualizar la contraseña.' });
   } finally {
     if (connection) {
       connection.end();
