@@ -675,7 +675,6 @@ const transporter = nodemailer.createTransport({
   });
 
 
-  
    // He Olvidado Mi Contraseña - ALUMNOS (APP ANDROID)
     app.post('/peticioRestaurarContraAlumnes', async (req, res) => {
       const { correu_alumne } = req.body;
@@ -736,8 +735,6 @@ const transporter = nodemailer.createTransport({
         }
       }
     });
-
-
 
 
    // He Olvidado Mi Contraseña - PROFESORES (ADMINISTRACIÓN VUE)
