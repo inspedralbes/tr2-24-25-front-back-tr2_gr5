@@ -1221,7 +1221,7 @@ app.get('/alumnosPendientes', async (req, res) => {
 
         // Validar existencia del usuario
         if (rows.length === 0) {
-            return res.status(404).json({ message: 'Usuario no encontrado' });
+            return res.status(404).json({ message: 'Usuario no registrado' });
         }
 
         const user = rows[0];
