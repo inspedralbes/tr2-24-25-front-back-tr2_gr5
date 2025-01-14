@@ -12,7 +12,7 @@ require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') });
 
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
-const port = process.env.PORTPROD;
+const port = process.env.PORT;
 const bcrypt = require('bcrypt');
 
 
@@ -25,12 +25,12 @@ var peticions = [];
 
 // Creación de la conexión a la base de datos 
 const dataConnection = {
-  host: process.env.DB_HOSTPROD,
-  dbport: process.env.DB_PORTPROD,
-  user: process.env.DB_USERPROD,
-  password: process.env.DB_PASSPROD,
-  database: process.env.DB_NAMEPROD,
-  port: process.env.PORTPROD,
+  host: process.env.DB_HOSTLH,
+  dbport: process.env.DB_PORTLH,
+  user: process.env.DB_USERLH,
+  password: process.env.DB_PASSLH,
+  database: process.env.DB_NAMELH,
+  port: process.env.PORT,
   waitForConnections: true
 };
 /*
