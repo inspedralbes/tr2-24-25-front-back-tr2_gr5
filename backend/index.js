@@ -577,6 +577,31 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+
+  app.get('/usuaris/:tipus', async (req, res) => {
+    const { tipus } = req.params;
+    const validTypes = ['ment', 'alum', 'prof']; // Tipos válidos
+    if (!validTypes.includes(tipus)) {
+        return res.status(400).send('Tipo de usuario no válido.');
+    }
+
+    let connection;
+    try {
+        connection = await connectDB();
+        const [rows] = await connection.query('SELECT * FROM usuaris WHERE tipus = ?', [tipus]);
+        console.log(`Usuarios (${tipus}): `, rows);
+        res.json(rows);
+        sendUsuaris(); // Asegúrate de que sendUsuaris tenga sentido en este contexto
+    } catch (error) {
+        console.error(`Error fetching usuarios (${tipus}):`, error);
+        res.status(500).send('Error fetching usuarios.');
+    } finally {
+        connection.end();
+        console.log('Connection closed.');
+    }
+});
+  
+
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
 const transporter = nodemailer.createTransport({
@@ -673,7 +698,7 @@ const transporter = nodemailer.createTransport({
 
         // Comprobar si el correo existe en la base de datos
         const [rows] = await connection.query(
-          'SELECT * FROM alumnes WHERE correu = ?',
+          'SELECT * FROM usuaris WHERE correu_alumne = ?',
           [correu_alumne]
         );
 
@@ -682,7 +707,7 @@ const transporter = nodemailer.createTransport({
         }
 
         // Enviar correo para restaurar contraseña
-        const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_alumne)}`;
+        const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_alumne)}`;  //------------ restoredOassword.vu es la pagina que va a ver el usario al darle a este enlace
         const mailOptions = {
           from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
           to: correu_alumne,
@@ -706,7 +731,7 @@ const transporter = nodemailer.createTransport({
         res.status(500).send('Error al procesar la solicitud.');
       } finally {
         if (connection) {
-          connection.release();
+          connection.end();
           console.log('Conexión a la base de datos cerrada.');
         }
       }
@@ -737,7 +762,7 @@ const transporter = nodemailer.createTransport({
 
       // Comprobar si el correo existe en la base de datos
       const [rows] = await connection.query(
-        'SELECT * FROM alumnes WHERE correu = ?',
+        'SELECT * FROM usuaris WHERE correu_profe = ?',
         [correu_profe]
       );
 
@@ -746,10 +771,10 @@ const transporter = nodemailer.createTransport({
       }
 
       // Enviar correo para restaurar contraseña
-      const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_profe)}`;
+      const resetLink = `http://miapp.com/restaurar-contraseña?email=${encodeURIComponent(correu_profe)}`;  //------------ restoredOassword.vu es la pagina que va a ver el usario al darle a este enlace
       const mailOptions = {
         from: '"Supportly" <a21adrvazvaz@inspedralbes.cat>', // Remitente
-        to: correu_alumne,
+        to: correu_profe,
         cc: 'a24bermirpre@inspedralbes.cat, a21xavmarvel@inspedralbes.cat, a22arnmaljoa@inspedralbes.cat, a23edstorcev@inspedralbes.cat, a21adrvazvaz@inspedralbes.cat',
         subject: 'Restaurar Contraseña - Supportly App',
         html: `
@@ -770,7 +795,7 @@ const transporter = nodemailer.createTransport({
       res.status(500).send('Error al procesar la solicitud.');
     } finally {
       if (connection) {
-        connection.release();
+        connection.end();
         console.log('Conexión a la base de datos cerrada.');
       }
     }
@@ -825,7 +850,7 @@ app.post('/restaurarContraAlumn', async (req, res) => {
 
     // Actualizar la contraseña en la base de datos
     await connection.query(
-      'UPDATE alumnes SET contrasenya = ? WHERE correu = ?',
+      'UPDATE usuaris SET contrasenya = ? WHERE correu_alumne = ?',
       [hashedPassword, correu_alumne]
     );
 
@@ -835,7 +860,7 @@ app.post('/restaurarContraAlumn', async (req, res) => {
     res.status(500).send('Error al actualizar la contraseña.');
   } finally {
     if (connection) {
-      connection.release();
+      connection.end();
       console.log('Conexión a la base de datos cerrada.');
     }
   }
@@ -877,8 +902,8 @@ app.post('/restaurarContraProf', async (req, res) => {
 
     // Verificar si el correo está registrado
     const [rows] = await connection.query(
-      'SELECT * FROM alumnes WHERE correu = ?',
-      [correu_alumne]
+      'SELECT * FROM usuaris WHERE correu_profe = ?',
+      [correu_profe]
     );
 
     if (rows.length === 0) {
@@ -890,8 +915,8 @@ app.post('/restaurarContraProf', async (req, res) => {
 
     // Actualizar la contraseña en bbdd
     await connection.query(
-      'UPDATE alumnes SET contrasenya = ? WHERE correu = ?',
-      [hashedPassword, correu_alumne]
+      'UPDATE usuaris SET contrasenya = ? WHERE correu_profe = ?',
+      [hashedPassword, correu_profe]
     );
 
     res.status(200).send('Contraseña actualizada con éxito.');
@@ -900,7 +925,7 @@ app.post('/restaurarContraProf', async (req, res) => {
     res.status(500).send('Error al actualizar la contraseña.');
   } finally {
     if (connection) {
-      connection.release();
+      connection.end();
       console.log('Conexión a la base de datos cerrada.');
     }
   }
@@ -1224,6 +1249,7 @@ app.get('/alumnosPendientes', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.correu_alumne,
+                tipus: user.tipus
             },
         });
 

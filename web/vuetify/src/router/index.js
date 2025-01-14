@@ -13,7 +13,7 @@ import PaginaPrincipal from '@/components/PaginaPrincipal.vue';
 import IncidenciesPage from '@/components/IncidenciesPage.vue';
 import UsuarisPage from '@/components/UsuarisPage.vue';
 import MentorsApplicationPage from '@/components/MentorsApplicationPage.vue';
-import forgotpassword from '@/pages/forgotpassword.vue'
+import forgotpassword from '@/pages/forgotpassword.vue';
 
 
 const routes = [
@@ -46,8 +46,8 @@ const routes = [
     component: MentorsApplicationPage,
   },
   {
-    path: '/forgotpassword',
-    name: 'ForgotPassword',
+    path: '/forgotPassword',
+    name: 'forgotPassword',
     component: forgotpassword,
   }
 ];

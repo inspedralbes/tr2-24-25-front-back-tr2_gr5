@@ -19,26 +19,33 @@ INSERT INTO `curs` (`id_curs`, `numero_curs`, `nom_curs`) VALUES
 (4, '2', 'DAW');
 
 -- Datos para la tabla `usuaris`
-INSERT INTO `usuaris` (`nom`, `cognom`,  `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`) VALUES
-('Juan', 'Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, 'alum', '/images/juan.png'),
-('Ana', 'Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'CACA', 'password123', 1, 'alum', '/images/ana.png'),
-('Pedro', 'Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, 'alum', '/images/pedro.png');
+INSERT INTO `usuaris` (`nom`, `cognom`,  `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`, `likes`, `dislikes`) VALUES
+('Juan', 'Pérez', 'juan.perez.alumno@example.com', 'juan.perez.tutor@example.com', 'juan.perez.profe@example.com', 'password123', 1, 'alum', '/images/juan.png', 0, 0),
+  ('Ana', 'Rodríguez', 'ana.rodriguez.alumno@example.com', 'ana.rodriguez.tutor@example.com', 'CACA@gmail.com', 'password123', 1, 'alum', '/images/ana.png', 5, 1),
+  ('Pedro', 'Martínez', 'pedro.martinez.alumno@example.com', 'pedro.martinez.tutor@example.com', 'pedro.martinez.profe@example.com', 'password123', 2, 'alum', '/images/pedro.png', 10, 3),
+  ('E', 'E', 'E', 'E', 'E', 'E', 1, 'alum', '/images/juan.png', 0, 0);
 
 -- Mentores pendientes de validar
 INSERT INTO `usuaris` (`nom`, `cognom`, `correu_alumne`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`, `valid_tut_aula`, `valid_tut_legal`) VALUES
-('Carlos', 'Gómez', 'carlos.gomez.alumno@example.com', 'carlos.gomez.tutor@example.com', 'CACA', 'password123', 3, 'ment', '/images/carlos.png', 0, 1),
-('Laura', 'Fernández', 'laura.fernandez.alumno@example.com', 'laura.fernandez.tutor@example.com', 'CACA', 'password123', 3, 'ment', '/images/laura.png', 0, 1),
+('Carlos', 'Gómez', 'carlos.gomez.alumno@example.com', 'carlos.gomez.tutor@example.com', 'CACA@gmail.com', 'password123', 3, 'ment', '/images/carlos.png', 0, 1),
+('Laura', 'Fernández', 'laura.fernandez.alumno@example.com', 'laura.fernandez.tutor@example.com', 'CACA@gmail.com', 'password123', 3, 'ment', '/images/laura.png', 0, 1),
 ('Marta', 'López', 'marta.lopez.alumno@example.com', 'marta.lopez.tutor@example.com', 'marta.lopez.profe@example.com', 'password123', 4, 'ment', '/images/marta.png', 0, 1),
 ('Luis', 'Sánchez', 'luis.sanchez.alumno@example.com', 'luis.sanchez.tutor@example.com', 'luis.sanchez.profe@example.com', 'password123', 4, 'ment', '/images/luis.png', 0, 1),
 ('Elena', 'Vázquez', 'elena.vazquez.alumno@example.com', 'elena.vazquez.tutor@example.com', 'elena.vazquez.profe@example.com', 'password123', 4, 'ment', '/images/elena.png', 0, 1);
 
 -- Mentores ya validados
-INSERT INTO `usuaris` (`nom`, `cognom`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`, `valid_tut_aula`, `valid_tut_legal`) VALUES
-('José', 'García', 'jose.garcia.tutor@example.com', 'CACA', 'password123', 1, 'ment', '/images/jose.png', 1, 1),
-('Patricia', 'Álvarez', 'patricia.alvarez.tutor@example.com', 'CACA', 'password123', 2, 'ment', '/images/patricia.png', 1, 1),
-('Ricardo', 'Hernández', 'ricardo.hernandez.tutor@example.com', 'ricardo.hernandez.profe@example.com', 'password123', 3, 'ment', '/images/ricardo.png', 1, 1),
-('Sofía', 'Ramírez', 'sofia.ramirez.tutor@example.com', 'sofia.ramirez.profe@example.com', 'password123', 4, 'ment', '/images/sofia.png', 1, 1),
-('David', 'Jiménez', 'david.jimenez.tutor@example.com', 'david.jimenez.profe@example.com', 'password123', 4, 'ment', '/images/david.png', 1, 1);
+INSERT INTO `usuaris` (`nom`, `cognom`, `correu_tutor`, `correu_profe`, `contrasenya`, `id_curs`, `tipus`, `imatge_usuari_ruta`, `valid_tut_aula`, `valid_tut_legal`, `peticionsAcabades`) VALUES
+('José', 'García', 'jose.garcia.tutor1@example.com', 'CACA@', 'password123', 3, 'ment', '/images/jose.png', 1, 1, 35),
+('Patricia', 'Álvarez', 'patricia.alvarez.tutor2@example.com', 'CACA@', 'password123', 4, 'ment', '/images/patricia.png', 1, 1, 72),
+('Ricardo', 'Hernández', 'ricardo.hernandez.tutor3@example.com', 'ricardo.hernandez.profe@example.com', 'password123', 3, 'ment', '/images/ricardo.png', 1, 1, 18),
+('Sofía', 'Ramírez', 'sofia.ramirez.tutor4@example.com', 'sofia.ramirez.profe@example.com', 'password123', 4, 'ment', '/images/sofia.png', 1, 1, 93),
+('David', 'Jiménez', 'david.jimenez.tutor5@example.com', 'david.jimenez.profe@example.com', 'password123', 4, 'ment', '/images/david.png', 1, 1, 57),
+('María', 'López', 'maria.lopez.tutor6@example.com', 'maria.lopez.profe@example.com', 'password123', 3, 'ment', '/images/maria.png', 1, 1, 11),
+('Juan', 'Martínez', 'juan.martinez.tutor7@example.com', 'juan.martinez.profe@example.com', 'password123', 4, 'ment', '/images/juan.png', 1, 1, 88),
+('Lucía', 'Pérez', 'lucia.perez.tutor8@example.com', 'lucia.perez.profe@example.com', 'password123', 3, 'ment', '/images/lucia.png', 1, 1, 64),
+('Carlos', 'Gómez', 'carlos.gomez.tutor9@example.com', 'carlos.gomez.profe@example.com', 'password123', 4, 'ment', '/images/carlos.png', 1, 1, 29),
+('Ana', 'Sánchez', 'ana.sanchez.tutor10@example.com', 'ana.sanchez.profe@example.com', 'password123', 3, 'ment', '/images/ana.png', 1, 1, 46);
+
 
 
 -- Profesores

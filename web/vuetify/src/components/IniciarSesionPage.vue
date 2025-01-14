@@ -153,8 +153,8 @@ const login = async () => {
 };
 
 const forgotPassword = () => {
-  router.push('/forgotpassword')
-  showSnackbar('Recuperar contraseña', 'info');
+  showSnackbar('De camí a recuperar la teva contraseña!', 'info');
+  router.push('/forgotPassword');
 };
 
 const navigate = (step) => {

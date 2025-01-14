@@ -13,7 +13,10 @@
           />
         </div>
   
-        <button type="submit">Restablecer Contraseña</button>
+        <button type="submit" :disabled="loading">
+          {{ loading ? "Enviando..." : "Restablecer Contraseña" }}
+        </button>
+        <p v-if="message" :class="{ success: success, error: !success }">{{ message }}</p>
       </form>
     </div>
   </template>
@@ -22,13 +25,41 @@
   export default {
     data() {
       return {
-        email: ''
+        email: "",
+        loading: false,
+        message: "",
+        success: false
       };
     },
     methods: {
-      resetPassword() {
-        // Aquí puedes agregar la lógica para manejar el restablecimiento
-        console.log('Correo electrónico enviado:', this.email);
+      async resetPassword() {
+        this.loading = true;
+        this.message = "";
+        this.success = false;
+  
+        try {
+          const response = await fetch("http://localhost:3000/peticioRestaurarContraProfes", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ correu_profe: this.email })
+          });
+  
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText);
+          }
+  
+          const data = await response.text();
+          this.message = data; // Mensaje de éxito del servidor
+          this.success = true;
+        } catch (error) {
+          this.message = error.message || "Error al enviar la solicitud.";
+          this.success = false;
+        } finally {
+          this.loading = false;
+        }
       }
     }
   };
@@ -39,12 +70,11 @@
     max-width: 400px;
     margin: 0 auto;
     padding: 1em;
-    background-color: #3f3e3e;
+    background-color: #272626;
     border-radius: 8px;
-    margin-top: 10rem;
-    align-items: center;
+    margin-top: 15rem;
     text-align: center;
-    
+    color: #fff;
   }
   
   .form-group {
@@ -53,9 +83,8 @@
   
   label {
     display: block;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.5em;
     margin-top: 2rem;
-    color: #f9f9f9;
   }
   
   input {
@@ -63,6 +92,7 @@
     padding: 0.8em;
     border: 1px solid #ccc;
     border-radius: 4px;
+    margin-bottom: 2rem;
   }
   
   button {
@@ -72,12 +102,24 @@
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 3rem;
-    
+  }
+  
+  button:disabled {
+    background-color: #6c757d;
   }
   
   button:hover {
     background-color: #0056b3;
+  }
+  
+  p.success {
+    color: #28a745;
+    margin-top: 1rem;
+  }
+  
+  p.error {
+    color: #dc3545;
+    margin-top: 1rem;
   }
   </style>
   
