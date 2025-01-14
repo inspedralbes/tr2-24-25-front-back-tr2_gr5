@@ -25,11 +25,11 @@ var peticions = [];
 
 // Creación de la conexión a la base de datos 
 const dataConnection = {
-  host: process.env.DB_HOSTPROD,
-  dbport: process.env.DB_PORTPROD,
-  user: process.env.DB_USERPROD,
-  password: process.env.DB_PASSPROD,
-  database: process.env.DB_NAMEPROD
+  host: process.env.DB_HOSTLH,
+  dbport: process.env.DB_PORTLH,
+  user: process.env.DB_USERLH,
+  password: process.env.DB_PASSLH,
+  database: process.env.DB_NAMELH
   
 };
 /*
@@ -39,7 +39,6 @@ const dataConnection = {
   user: process.env.DB_USERPROD,
   password: process.env.DB_PASSPROD,
   database: process.env.DB_NAMEPROD,
-  waitForConnections: true
 };
 */
 
