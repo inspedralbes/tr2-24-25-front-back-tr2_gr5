@@ -1353,29 +1353,41 @@ app.post('/loginProf', async (req, res) => {
   });
   
   app.put('/coneixements/:id', async (req, res) => {
-    const { id } = req.params;
-    const cleanedId = id.replace(/[^0-9]/g, '');
-    const coneixementsId = parseInt(cleanedId, 10);
-    const { id_usuari, id_categoria } = req.body;
-    if (!id_usuari || !id_categoria) {
-      return res.status(400).send('Datos incompletos.');
-    }Contraseña
-      connection = await connectDB();
-      const [result] = await connection.query('UPDATE coneixements SET id_usuari = ?, id_categoria = ? WHERE id_coneixement = ?', [id_usuari, id_categoria, coneixementsId]);
-      if (result.affectedRows > 0) {
-        let message = { message: `Coneixement con ID ${coneixementsId} actualizado con éxito.` };
-        res.status(200).send(JSON.stringify(message));
-      } else {
-        res.status(404).send('Coneixement no encontrado.');
-      }
-    } catch (error) {
-      console.error('Error updating coneixements:', error);
-      res.status(500).send('Error updating coneixements.');
-    } finally {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, '');
+  const coneixementsId = parseInt(cleanedId, 10);
+  const { id_usuari, id_categoria } = req.body;
+
+  if (!id_usuari || !id_categoria) {
+    return res.status(400).send('Datos incompletos.');
+  }
+
+  let connection;
+
+  try {
+    connection = await connectDB();
+    const [result] = await connection.query(
+      'UPDATE coneixements SET id_usuari = ?, id_categoria = ? WHERE id_coneixement = ?',
+      [id_usuari, id_categoria, coneixementsId]
+    );
+
+    if (result.affectedRows > 0) {
+      let message = { message: `Coneixement con ID ${coneixementsId} actualizado con éxito.` };
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      res.status(404).send('Coneixement no encontrado.');
+    }
+  } catch (error) {
+    console.error('Error updating coneixements:', error);
+    res.status(500).send('Error updating coneixements.');
+  } finally {
+    if (connection) {
       connection.end();
       console.log("Connection closed.");
     }
-  });
+  }
+});
+
   
   app.delete('/coneixements/:id', async (req, res) => {
     const { id } = req.params;
