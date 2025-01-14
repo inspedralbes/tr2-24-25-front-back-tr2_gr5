@@ -30,8 +30,6 @@ const dataConnection = {
   user: process.env.DB_USERPROD,
   password: process.env.DB_PASSPROD,
   database: process.env.DB_NAMEPROD,
-  port: process.env.PORTPROD,
-  waitForConnections: true
 };
 /*
 const dataConnection = {
