@@ -4,13 +4,13 @@ const mysql = require('mysql2');
 require('dotenv').config({ path: './environment/.env' });
 
 const connection = mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: process.env.DB_PORT,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASS
+    host: process.env.DB_HOSTPROD,
+    port: process.env.DB_PORTPROD,
+    user: process.env.DB_USERPROD,
+    password: process.env.DB_PASSPROD
 });
 
-const dataBaseName = process.env.DB_NAME;
+const dataBaseName = process.env.DB_NAMEPROD;
 const sqlFileCrateDB = path.join(__dirname, '.', 'data', 'createDB.sql');
 const fileCreateSQL = fs.readFileSync(sqlFileCrateDB, 'utf8');
 const sqlFileInsertDB = path.join(__dirname, '.', 'data', 'insertDB.sql');
