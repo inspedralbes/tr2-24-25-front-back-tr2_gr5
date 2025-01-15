@@ -17,7 +17,7 @@
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
     "mongodb": "^6.12.0",
-    "mongoose": "^8.9.4",
+    "mongoose": "^8.9.5",
     "moongose": "^1.0.0",
     "mysql2": "^3.12.0",
     "node": "^22.12.0",
