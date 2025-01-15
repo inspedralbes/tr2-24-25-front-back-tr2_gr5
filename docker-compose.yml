@@ -27,7 +27,7 @@ services:
    image: adminer:4.7.7
    restart: always
    ports:
-     - 9090:8080
+     - 9091:8080
    depends_on:
      - db
 
@@ -48,7 +48,7 @@ services:
      MYSQL_USER: tr2
      MYSQL_PASSWORD: root
    ports:
-     - 3308:3306
+     - 3309:3308
    volumes:
      # Per guardar les dades de forma persistent
      - ./mysql_data:/var/lib/mysql

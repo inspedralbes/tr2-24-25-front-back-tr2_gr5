@@ -26,7 +26,7 @@
     <!-- Botones de navegación -->
     <v-btn to="/applicationMent">
       <v-icon>mdi-account-school</v-icon>
-      Mentors
+      Alumnes
     </v-btn>
     <v-btn to="/incidences">
       <v-icon>mdi-alert-circle-outline</v-icon>

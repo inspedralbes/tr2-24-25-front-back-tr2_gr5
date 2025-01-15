@@ -13,7 +13,8 @@ import PaginaPrincipal from '@/components/PaginaPrincipal.vue';
 import IncidenciesPage from '@/components/IncidenciesPage.vue';
 import UsuarisPage from '@/components/UsuarisPage.vue';
 import MentorsApplicationPage from '@/components/MentorsApplicationPage.vue';
-
+import forgotpassword from '@/pages/forgotpassword.vue';
+import restoredPassword from '@/pages/restoredPassword.vue';
 
 const routes = [
   ...autoroutes,
@@ -43,7 +44,18 @@ const routes = [
     path: '/applicationMent',
     name: 'ApplicationMentors',
     component: MentorsApplicationPage,
-  }
+  },
+  {
+    path: '/forgotPassword',
+    name: 'forgotPassword',
+    component: forgotpassword,
+  },
+  {
+    path: '/resetPassword',
+    name: 'resetPassword',
+    component: restoredPassword,
+  },
+ 
 ];
 
 const router = createRouter({

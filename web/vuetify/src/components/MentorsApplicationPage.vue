@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <h2 class="text-center mb-5">Mentores Pendientes</h2>
+    <h2 class="text-center mb-5">Sol·licituds Pendents d'Alumnes</h2>
     <v-timeline>
       <v-timeline-item
         v-for="mentor in filteredMentores"

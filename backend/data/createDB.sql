@@ -20,8 +20,11 @@ CREATE TABLE IF NOT EXISTS usuaris (
   contrasenya VARCHAR(100) NOT NULL,
   tipus ENUM('alum', 'prof', 'ment') NOT NULL,
   imatge_usuari_ruta VARCHAR(255) DEFAULT NULL,
+  likes INT(11) DEFAULT '0',
+  dislikes INT(11) DEFAULT '0',
   valid_tut_aula TINYINT(1) DEFAULT '0' NOT NULL,
   valid_tut_legal TINYINT(1) DEFAULT '0',
+  peticionsAcabades INT(11) DEFAULT '0',
   FOREIGN KEY (id_curs) REFERENCES curs (id_curs) ON DELETE CASCADE
 );
 
