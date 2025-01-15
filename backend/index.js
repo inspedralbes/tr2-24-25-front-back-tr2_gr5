@@ -49,19 +49,44 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// Ruta para enviar mensajes
 router.post('/send', async (req, res) => {
   try {
       const { sender, receiver, message } = req.body;
+
+      // Validación de los campos sender y message
+      if (!sender || !message) {
+          return res.status(400).send({
+            success: false,
+            message: "El campo 'sender' y 'message' son obligatorios"
+          });
+      }
+
+      console.log("Mensaje recibido:", { sender, receiver, message });
+
+      // Crear un nuevo mensaje en la base de datos
       const newMessage = new Message({ sender, receiver, message });
       await newMessage.save();
 
+      // Emitir el mensaje a través del WebSocket
       io.emit('mRecibido', newMessage);
-      res.status(201).send(newMessage);
+
+      // Crear el mensaje de respuesta, solo con sender y message
+      const formattedMessage = `${sender}: ${message}`;
+
+      // Devolver la respuesta
+      res.status(201).send({
+        success: true,
+        message: formattedMessage,  // Aquí mostramos solo sender y message
+        data: newMessage
+      });
   } catch (error) {
+      console.error("Error al enviar el mensaje:", error);
       res.status(500).send({ error: 'Error sending message' });
   }
 });
+
+
+
 
 // Ruta para obtener mensajes entre dos usuarios
 router.get('/messages', async (req, res) => {
