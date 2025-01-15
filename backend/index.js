@@ -26,21 +26,21 @@ var peticions = [];
 // Creación de la conexión a la base de datos 
 const dataConnection = {
   host: process.env.DB_HOSTLH,
-  dbport: process.env.DB_PORTLH,
+  port: process.env.DB_PORTLH,
   user: process.env.DB_USERLH,
   password: process.env.DB_PASSLH,
   database: process.env.DB_NAMELH
   
 };
-/*
-const dataConnection = {
+
+/*const dataConnection = {
   host: process.env.DB_HOSTPROD,
-  port: process.env.DB_PORT,
+  port: process.env.DB_PORTPROD,
   user: process.env.DB_USERPROD,
   password: process.env.DB_PASSPROD,
   database: process.env.DB_NAMEPROD,
-};
-*/
+};*/
+
 
 async function connectDB() {
   try {
@@ -586,6 +586,57 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+
+  app.get('/usuaris/:correu_alumne', async (req, res) => {
+    const { correu_alumne } = req.params;  // Obtener el correo del parámetro de la URL
+    let connection;
+
+    try {
+        connection = await connectDB();
+        const [rows] = await connection.query('SELECT * FROM usuaris WHERE correu_alumne = ?', [correu_alumne]);
+        
+        if (rows.length > 0) {
+            console.log('Usuario encontrado: ', rows[0]);
+            res.json(rows[0]);  // Enviar el primer usuario que coincida con el correo
+        } else {
+            res.status(404).send('Usuario no encontrado.');
+        }
+    } catch (error) {
+        console.error('Error fetching user by correu_alumne:', error);
+        res.status(500).send('Error fetching user.');
+    } finally {
+        connection.end();
+        console.log("Connection closed.");
+    }
+});
+
+
+  app.get('/usuaris/:tipus', async (req, res) => {
+    const { tipus } = req.params; // Obtenemos el parámetro 'tipus' de la URL
+    let connection;
+  
+    try {
+      connection = await connectDB();
+  
+      const query = 'SELECT * FROM usuaris WHERE tipus = ?';
+      const [rows] = await connection.query(query, [tipus]);
+  
+      if (rows.length === 0) {
+        res.status(404).send({ message: 'No se encontraron usuarios con el tipo especificado.' });
+      } else {
+        res.json(rows);
+      }
+  
+      console.log('Usuarios filtrados: ', rows);
+    } catch (error) {
+      console.error('Error fetching usuaris:', error);
+      res.status(500).send('Error fetching usuaris.');
+    } finally {
+      if (connection) await connection.end();
+      console.log('Connection closed.');
+    }
+  });
+
   
  // Configuración de Nodemailer (modifica según tu servidor de correo)
 const transporter = nodemailer.createTransport({
@@ -953,6 +1004,7 @@ app.get('/mentoresPendientes', async (req, res) => {
             user: {
                 id: user.id,
                 email: user.correu_alumne,
+                tipus: user.tipus,
             },
         });
 
@@ -1146,5 +1198,5 @@ app.post('/loginProf', async (req, res) => {
   
 
 server.listen(port, () => {
-  console.log(`Example app listening at http://tr2g5.dam.inspedralbes.cat:${port}`);
+  console.log(`Example app listening at http://tr2g5.dam.inspedralbes.cat`);
 });
