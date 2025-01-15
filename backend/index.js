@@ -675,6 +675,34 @@ app.get('/categoria', async (req, res) => {
     }
   });
 
+
+  // Endpoint para buscar usuarios según su tipo
+app.get('/usuarisM/:tipus', async (req, res) => {
+  const { tipus } = req.params; // Obtenemos el parámetro 'tipus' de la URL
+  let connection;
+
+  try {
+    connection = await connectDB();
+
+    const query = 'SELECT * FROM usuaris WHERE tipus = ?';
+    const [rows] = await connection.query(query, [tipus]);
+
+    if (rows.length === 0) {
+      res.status(404).send({ message: 'No se encontraron usuarios con el tipo especificado.' });
+    } else {
+      res.json(rows);
+    }
+
+    console.log('Usuarios filtrados: ', rows);
+  } catch (error) {
+    console.error('Error fetching usuaris:', error);
+    res.status(500).send('Error fetching usuaris.');
+  } finally {
+    if (connection) await connection.end();
+    console.log('Connection closed.');
+  }
+});
+
   //Get d'usuaris pel nom
   app.get('/usuaris/:nom', async (req, res) => {
     const { nom } = req.params; 
