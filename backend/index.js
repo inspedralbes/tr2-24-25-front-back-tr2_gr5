@@ -113,22 +113,22 @@ app.use('/api', router);
 // -------------------- CREACIÓ CONEXIÓ --------------------
 
 // Creación de la conexión a la base de datos 
-const dataConnection = {
+/* const dataConnection = {
   host: process.env.DB_HOSTLH,
   port: process.env.DB_PORTLH,
   user: process.env.DB_USERLH,
   password: process.env.DB_PASSLH,
   database: process.env.DB_NAMELH
   
-};
+};*/
 
-/*const dataConnection = {
+const dataConnection = {
   host: process.env.DB_HOSTPROD,
   port: process.env.DB_PORTPROD,
   user: process.env.DB_USERPROD,
   password: process.env.DB_PASSPROD,
   database: process.env.DB_NAMEPROD,
-};*/
+};
 
 
 async function connectDB() {
@@ -1043,7 +1043,40 @@ app.post('/restaurarContraProf', async (req, res) => {
   }
 });
 
+app.put('/usuaris/validar-tutor-legal/:id', async (req, res) => {
+  const { id } = req.params;
+  const cleanedId = id.replace(/[^0-9]/g, ''); // Limpieza del parámetro
+  const usuariId = parseInt(cleanedId, 10); // Convertir a entero
+  let connection;
 
+  try {
+    // Conectar a la base de datos
+    connection = await connectDB();
+
+    // Ejecutar consulta de actualización
+    const [result] = await connection.query(
+      'UPDATE usuaris SET valid_tut_legal = 1 WHERE id_usuari = ?',
+      [usuariId]
+    );
+
+    if (result.affectedRows > 0) {
+      // Si se actualizó correctamente
+      const message = {
+        message: `Usuario con ID ${usuariId} validado con éxito.`,
+      };
+      res.status(200).send(JSON.stringify(message));
+    } else {
+      // Si no se encontró el usuario
+      res.status(404).send('Usuario no encontrado.');
+    }
+  } catch (error) {
+    console.error('Error al validar tutor legal:', error);
+    res.status(500).send('Error al validar tutor legal.');
+  } finally {
+    if (connection) connection.end(); // Cerrar conexión
+    console.log("Connection closed.");
+  }
+});
 
   
 

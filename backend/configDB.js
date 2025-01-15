@@ -5,7 +5,7 @@ require('dotenv').config({ path: './environment/.env' });
 
 
 
-/*const connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: process.env.DB_HOSTPROD,
     port: process.env.DB_PORTPROD,
     user: process.env.DB_USERPROD,
@@ -14,16 +14,16 @@ require('dotenv').config({ path: './environment/.env' });
 
 
 
-   const dataBaseName = process.env.DB_NAMEPROD;*/
+   const dataBaseName = process.env.DB_NAMEPROD;
 
-const connection = mysql.createConnection({
+/*const connection = mysql.createConnection({
     host: process.env.DB_HOSTLH,
     port: process.env.DB_PORTLH,
     user: process.env.DB_USERLH,
     password: process.env.DB_PASSLH
 });
 
-const dataBaseName = process.env.DB_NAMELH;
+const dataBaseName = process.env.DB_NAMELH;*/
 
 
 const sqlFileCrateDB = path.join(__dirname, '.', 'data', 'createDB.sql');

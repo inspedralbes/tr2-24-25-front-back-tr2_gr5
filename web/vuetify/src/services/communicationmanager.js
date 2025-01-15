@@ -1,6 +1,26 @@
 const API_URL = import.meta.env.VITE_URL_BACK;
 import socket from '@/services/socket';
 
+export async function validarTutorLegal(idUsuari) {
+  try {
+    const response = await fetch(`${API_URL}/usuaris/validar-tutor-legal/${idUsuari}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Error en la solicitud: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data; // Mensaje de éxito
+  } catch (error) {
+    console.error('Error al validar tutor legal:', error);
+    throw error;
+  }
+}
 
 //------------------- PETICIO ------------------
 export async function getPeticio() {

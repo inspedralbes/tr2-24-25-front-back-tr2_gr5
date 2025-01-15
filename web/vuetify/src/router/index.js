@@ -15,6 +15,7 @@ import UsuarisPage from '@/components/UsuarisPage.vue';
 import MentorsApplicationPage from '@/components/MentorsApplicationPage.vue';
 import forgotpassword from '@/pages/forgotpassword.vue';
 import restoredPassword from '@/pages/restoredPassword.vue';
+import ConfirmacionTutor from '@/components/ConfirmacionTutor.vue';
 
 const routes = [
   ...autoroutes,
@@ -54,6 +55,11 @@ const routes = [
     path: '/resetPassword',
     name: 'resetPassword',
     component: restoredPassword,
+  },
+  {
+    path: '/confTut',
+    name: 'confimacioTutor',
+    component: ConfirmacionTutor,
   },
  
 ];
