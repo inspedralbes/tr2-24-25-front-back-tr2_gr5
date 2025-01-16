@@ -52,7 +52,7 @@
   });
   
   // Validar tutor legal
-  const validarTutorLegal = async () => {
+  const validarTutorLegal1 = async () => {
     if (!userId.value) {
       snackbar.value.message = "Por favor, ingresa un ID de usuario.";
       snackbar.value.show = true;
@@ -71,7 +71,7 @@
   };
   
   // Eliminar usuario
-  const eliminarUsuario = async () => {
+  const eliminarUsuario1 = async () => {
     if (!userId.value) {
       snackbar.value.message = "Por favor, ingresa un ID de usuario.";
       snackbar.value.show = true;

@@ -6,13 +6,13 @@ const { Server } = require('socket.io');
 const { createServer } = require('http');
 const path = require('path');
 const nodemailer = require('nodemailer');
-require('dotenv').config({ path: path.join(__dirname, 'environment', '.env') }); // Carga .env desde 'environment'
+require('dotenv').config({ path: './environment/.env' }); // Carga .env desde 'environment'
 //require('dotenv').config({ path: path.join(__dirname, 'environment', '.env.exemple') });
 
 
 const app = express();
 const createDB = require(path.join(__dirname, 'configDB.js'));
-const port = process.env.PORT;
+const port = process.env.PORTPROD;
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const router = express.Router();
@@ -113,7 +113,7 @@ app.use('/api', router);
 // -------------------- CREACIÓ CONEXIÓ --------------------
 
 // Creación de la conexión a la base de datos 
-/* const dataConnection = {
+ /*const dataConnection = {
   host: process.env.DB_HOSTLH,
   port: process.env.DB_PORTLH,
   user: process.env.DB_USERLH,
