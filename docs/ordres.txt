@@ -1,0 +1,10 @@
+//backend
+
+npm install mysql2 dotenv express cors socket.io nodemailer bcrypt mongodb mongoose router
+
+
+
+//administracion
+
+npm i
+
